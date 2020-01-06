@@ -1,3 +1,4 @@
+import { BasicTrainPlanner, Units } from "plannerjs";
 import React, { Component } from "react";
 
 import { Box } from "@material-ui/core";
@@ -43,19 +44,60 @@ class PlannerMap extends Component {
           .addTo(map);
         this.setState({ start: e.lngLat });
         startMarker.on("dragend", e => {
-          this.setState({ start: e.target._lngLat });
+          this.setState({ start: e.target._lngLat }, () => {
+            this.calculateRoute();
+          });
         });
       } else if (!this.state.destination) {
         var destinationMarker = new mapboxgl.Marker()
           .setLngLat([e.lngLat.lng, e.lngLat.lat])
           .setDraggable(true)
           .addTo(map);
-        this.setState({ destination: e.lngLat });
+        this.setState({ destination: e.lngLat }, () => {
+          this.calculateRoute();
+        });
         destinationMarker.on("dragend", e => {
-          this.setState({ destination: e.target._lngLat });
+          this.setState({ destination: e.target._lngLat }, () => {
+            this.calculateRoute();
+          });
         });
       }
     });
+  };
+
+  calculateRoute = () => {
+    const { start, destination } = this.state;
+    if (start && destination) {
+      const planner = new BasicTrainPlanner();
+      planner
+        .query({
+          from: { longitude: start.lng, latitude: start.lat },
+          to: { longitude: destination.lng, latitude: destination.lat },
+          minimumDepartureTime: new Date(),
+
+          walkingSpeed: 3, // KmH
+          minimumWalkingSpeed: 3, // KmH
+
+          maximumWalkingDistance: 200, // meters
+
+          minimumTransferDuration: Units.fromMinutes(1),
+          maximumTransferDuration: Units.fromMinutes(30),
+
+          maximumTravelDuration: Units.fromHours(1.5),
+
+          maximumTransfers: 4
+        })
+        .take(3)
+        .on("data", path => {
+          console.log(path);
+        })
+        .on("end", () => {
+          console.log("No more paths!");
+        })
+        .on("error", error => {
+          console.error(error);
+        });
+    }
   };
 
   render() {
