@@ -1,4 +1,4 @@
-import {Button, Card, CardActions, CardContent, TextField, Typography} from "@material-ui/core";
+import {Button, Card, CardActions, CardContent, Typography} from "@material-ui/core";
 import React, { Component } from "react";
 
 import styles from "./QueryBox.module.css";
@@ -14,11 +14,6 @@ class index extends Component {
     return (
       <Card className={styles.topleft}>
         <CardContent>
-          <TextField
-            variant="outlined"
-            label="Search start point"
-            margin="dense"
-          ></TextField>
           <Typography color="textSecondary" gutterBottom>
             Word of the Day
           </Typography>
