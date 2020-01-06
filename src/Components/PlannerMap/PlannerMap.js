@@ -1,57 +1,71 @@
-import { Map, Marker, TileLayer } from "react-leaflet";
 import React, { Component } from "react";
 
-import { BasicTrainPlanner } from "plannerjs";
 import { Box } from "@material-ui/core";
-import MarkerPopup from "../MarkerPopup/MarkerPopup";
 import QueryBox from "../QueryBox/QueryBox";
+import mapboxgl from "mapbox-gl";
 import styles from "./PlannerMap.module.css";
+
+mapboxgl.accessToken =
+  "pk.eyJ1Ijoic3VzaGlsZ2hhbWJpciIsImEiOiJjazUyZmNvcWExM2ZrM2VwN2I5amVkYnF5In0.76xcCe3feYPHsDo8eXAguw";
 
 class PlannerMap extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { lat: 50.85045, lng: 4.34878, zoom: 9, markers: [], createdMarkers: []};
+    this.state = {
+      lat: 50.85045,
+      lng: 4.34878,
+      zoom: 8,
+      start: null,
+      destination: null
+    };
   }
 
   componentDidMount = () => {
-    const planner = new BasicTrainPlanner();
-    let markers = [];
-    planner.getAllStops().then(stops => {
-      markers = stops.filter(s=>s.avgStopTimes<100000);
-      this.setState({ markers });
+    const map = new mapboxgl.Map({
+      container: this.mapContainer,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [this.state.lng, this.state.lat],
+      zoom: this.state.zoom
+    });
+    map.on("move", () => {
+      this.setState({
+        lng: map.getCenter().lng.toFixed(4),
+        lat: map.getCenter().lat.toFixed(4),
+        zoom: map.getZoom().toFixed(2)
+      });
+    });
+    map.on("click", e => {
+      if (!this.state.start) {
+        var startMarker = new mapboxgl.Marker()
+          .setLngLat([e.lngLat.lng, e.lngLat.lat])
+          .setDraggable(true)
+          .addTo(map);
+        this.setState({ start: e.lngLat });
+        startMarker.on("dragend", e => {
+          this.setState({ start: e.target._lngLat });
+        });
+      } else if (!this.state.destination) {
+        var destinationMarker = new mapboxgl.Marker()
+          .setLngLat([e.lngLat.lng, e.lngLat.lat])
+          .setDraggable(true)
+          .addTo(map);
+        this.setState({ destination: e.lngLat });
+        destinationMarker.on("dragend", e => {
+          this.setState({ destination: e.target._lngLat });
+        });
+      }
     });
   };
 
-  onMapClick = (e) => {
-    this.setState({
-      createdMarkers: [...this.state.createdMarkers, {latitude: e.latlng.lat, longitude: e.latlng.lng}]
-    })
-  }
-
   render() {
-    const position = [this.state.lat, this.state.lng];
-    const { createdMarkers } = this.state;
     return (
       <Box boxShadow={2}>
         <QueryBox></QueryBox>
-        <Map
-          center={position}
-          zoom={this.state.zoom}
-          zoomControl={false}
-          className={styles.map}
-          onclick={this.onMapClick}
-        >
-          <TileLayer
-            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {createdMarkers.map((m, index) => (
-            <Marker key={index} position={[m.latitude, m.longitude]} draggable>
-              <MarkerPopup></MarkerPopup>
-            </Marker>
-          ))}
-        </Map>
+        <div
+          ref={el => (this.mapContainer = el)}
+          className={styles.mapContainer}
+        />
       </Box>
     );
   }
