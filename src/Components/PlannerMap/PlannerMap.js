@@ -11,7 +11,7 @@ class PlannerMap extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { lat: 50.85045, lng: 4.34878, zoom: 9, markers: []};
+    this.state = { lat: 50.85045, lng: 4.34878, zoom: 9, markers: [], createdMarkers: []};
   }
 
   componentDidMount = () => {
@@ -23,10 +23,15 @@ class PlannerMap extends Component {
     });
   };
 
+  onMapClick = (e) => {
+    this.setState({
+      createdMarkers: [...this.state.createdMarkers, {latitude: e.latlng.lat, longitude: e.latlng.lng}]
+    })
+  }
+
   render() {
     const position = [this.state.lat, this.state.lng];
-    const { markers } = this.state;
-    console.log(markers);
+    const { createdMarkers } = this.state;
     return (
       <Box boxShadow={2}>
         <QueryBox></QueryBox>
@@ -35,15 +40,15 @@ class PlannerMap extends Component {
           zoom={this.state.zoom}
           zoomControl={false}
           className={styles.map}
-          
+          onclick={this.onMapClick}
         >
           <TileLayer
             attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {markers.map(s => (
-            <Marker key={s.id} position={[s.latitude, s.longitude]}>
-              <MarkerPopup stop={s}></MarkerPopup>
+          {createdMarkers.map((m, index) => (
+            <Marker key={index} position={[m.latitude, m.longitude]} draggable>
+              <MarkerPopup></MarkerPopup>
             </Marker>
           ))}
         </Map>
