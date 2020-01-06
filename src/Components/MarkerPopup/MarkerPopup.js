@@ -11,9 +11,11 @@ class MarkerPopup extends Component {
   }
 
   render() {
+    const {stop} = this.props;
     return (
       <Popup>
         <Grid container direction="row" spacing={1}>
+          {stop?<Typography variant="h6">{stop.name}</Typography>:null}
           <Grid item xs>
             <Button fullWidth variant="outlined" size="small">
               <Typography variant="inherit">Origin</Typography>
