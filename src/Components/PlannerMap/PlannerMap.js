@@ -4,6 +4,7 @@ import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 
 import { Box } from "@material-ui/core";
 import QueryBox from "../QueryBox/QueryBox";
+import ResultBox from "../ResultBox/ResultBox";
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -19,7 +20,10 @@ class PlannerMap extends Component {
       zoom: [8],
       start: null,
       destination: null,
-      routeCoords: []
+      routeCoords: [],
+      route: null,
+      calculating: false,
+      finished: false
     };
     this.planner = new BasicTrainPlanner();
   }
@@ -27,6 +31,12 @@ class PlannerMap extends Component {
   calculateRoute = () => {
     const { start, destination } = this.state;
     if (start && destination) {
+      this.setState({
+        calculating: true,
+        finished: false,
+        route: null,
+        routeCoords: []
+      });
       this.planner
         .query({
           from: { longitude: start.lng, latitude: start.lat },
@@ -57,13 +67,15 @@ class PlannerMap extends Component {
               ]);
             });
           });
-          this.setState({routeCoords});
+          this.setState({ route: path, calculating: false, routeCoords });
         })
         .on("end", () => {
           console.log("No more paths!");
+          this.setState({ calculating: false, finished: true });
         })
         .on("error", error => {
           console.error(error);
+          this.setState({ calculating: false });
         });
     }
   };
@@ -96,10 +108,24 @@ class PlannerMap extends Component {
   };
 
   render() {
-    const { center, zoom, start, destination, routeCoords } = this.state;
+    const {
+      center,
+      zoom,
+      start,
+      destination,
+      routeCoords,
+      route,
+      calculating,
+      finished
+    } = this.state;
     return (
       <Box boxShadow={2}>
         <QueryBox></QueryBox>
+        <ResultBox
+          calculating={calculating}
+          route={route}
+          finished={finished}
+        ></ResultBox>
         <Map
           // eslint-disable-next-line
           style="mapbox://styles/mapbox/streets-v9"
