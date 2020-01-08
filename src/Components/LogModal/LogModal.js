@@ -3,7 +3,7 @@ import React, { Component } from "react";
 
 import Drawer from "react-drag-drawer";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import Typist from "react-typist";
+import JSONPretty from 'react-json-prettify';
 import styles from "./LogModal.module.css";
 
 class LogModal extends Component {
@@ -14,7 +14,7 @@ class LogModal extends Component {
   }
 
   render() {
-    const { open, calculating, onClose } = this.props;
+    const { open, calculating, onClose, logs, query } = this.props;
     return (
       <Drawer open={open} modalElementClass={styles.logModal}>
         <Container>
@@ -27,19 +27,16 @@ class LogModal extends Component {
               </Grid>
             </Grid>
             <h1>Execution logs</h1>
-            <Typist>
-              <h2>Calculating your route...</h2>
-            </Typist>
-            <Typist>Lorem ipsum dolor sit amet</Typist>
-            <Typist>Ut enim ad minim veniam</Typist>
-            <Typist>in reprehenderit in voluptate</Typist>
-
-            <Typist>Lorem ipsum dolor sit amet</Typist>
-            <Typist>Ut enim ad minim veniam</Typist>
-            <Typist>in reprehenderit in voluptate</Typist>
-
-            <Typist>Lorem ipsum dolor sit amet</Typist>
-            <Typist>Ut enim ad minim veniam</Typist>
+            <h5>Executed query</h5>
+            <JSONPretty json={query}></JSONPretty>
+            <br/>
+            {logs.map((l, index) => (
+              <p key={index}>
+                <span className={styles.yellow}>[GET]</span>{" "}
+                <a href={l.url}>{l.url}</a>{" "}
+                <span className={styles.green}>({l.duration}ms)</span>
+              </p>
+            ))}
           </Box>
         </Container>
       </Drawer>

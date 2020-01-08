@@ -1,4 +1,4 @@
-import { BasicTrainPlanner, Units } from "plannerjs";
+import { BasicTrainPlanner, EventBus, EventType, Units } from "plannerjs";
 import React, { Component } from "react";
 import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 
@@ -26,20 +26,43 @@ class PlannerMap extends Component {
       route: null,
       calculating: false,
       finished: false,
-      isLogModalOpen: false
+      isLogModalOpen: false,
+      logs: [],
+      query: null
     };
     this.planner = new BasicTrainPlanner();
   }
 
   calculateRoute = () => {
     const { start, destination } = this.state;
+    EventBus.on(EventType.InvalidQuery, error => {
+      console.log("InvalidQuery", error);
+    })
+      .on(EventType.AbortQuery, reason => {
+        console.log("AbortQuery", reason);
+      })
+      .on(EventType.Query, query => {
+        console.log("Query", query);
+        this.setState({query})
+      })
+      .on(EventType.LDFetchGet, (url, duration) => {
+        console.log(`[GET] ${url} (${duration}ms)`);
+        let { logs } = this.state;
+        this.setState({
+          logs: [...logs, {url, duration}]
+        });
+      })
+      .on(EventType.Warning, e => {
+        console.warn(e);
+      });
     if (start && destination) {
       this.setState({
         calculating: true,
         finished: false,
         route: null,
         routeCoords: [],
-        isLogModalOpen: true
+        isLogModalOpen: true,
+        logs: []
       });
       this.planner
         .query({
@@ -83,7 +106,7 @@ class PlannerMap extends Component {
         })
         .on("error", error => {
           console.error(error);
-          this.setState({ calculating: false});
+          this.setState({ calculating: false });
         });
     }
   };
@@ -133,7 +156,9 @@ class PlannerMap extends Component {
       route,
       calculating,
       finished,
-      isLogModalOpen
+      isLogModalOpen,
+      logs,
+      query
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -151,6 +176,8 @@ class PlannerMap extends Component {
           open={isLogModalOpen}
           onClose={this.closeLogModal}
           calculating={calculating}
+          logs={logs}
+          query={query}
         ></LogModal>
         <Map
           // eslint-disable-next-line
