@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 
 import { Box } from "@material-ui/core";
+<<<<<<< HEAD
+=======
+import Fade from "react-reveal/Fade";
+>>>>>>> c4818fde02f735393deeaab94ea92a9df4801334
 import Typist from "react-typist";
 import styles from "./LogModal.module.css";
 
