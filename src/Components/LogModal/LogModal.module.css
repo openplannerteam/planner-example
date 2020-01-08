@@ -1,0 +1,12 @@
+.logModal{
+  position: absolute;
+  top: 100px;
+  left: 400px;
+  right: 100px;
+  z-index: 1;
+  background-color: rgba(18, 18, 18, 0.6);
+  border: black;
+  border-width: 3px;
+  border-style: solid;
+  color: white;
+}

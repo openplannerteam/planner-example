@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 
 import { Box } from "@material-ui/core";
+import LogModal from "../LogModal/LogModal";
 import QueryBox from "../QueryBox/QueryBox";
 import ResultBox from "../ResultBox/ResultBox";
 
@@ -126,6 +127,7 @@ class PlannerMap extends Component {
           route={route}
           finished={finished}
         ></ResultBox>
+        <LogModal open={calculating}></LogModal>
         <Map
           // eslint-disable-next-line
           style="mapbox://styles/mapbox/streets-v9"
