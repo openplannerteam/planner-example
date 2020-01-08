@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 
 import { Box } from "@material-ui/core";
+import LogButton from "../LogButton/LogButton";
 import LogModal from "../LogModal/LogModal";
 import QueryBox from "../QueryBox/QueryBox";
 import ResultBox from "../ResultBox/ResultBox";
@@ -24,7 +25,8 @@ class PlannerMap extends Component {
       routeCoords: [],
       route: null,
       calculating: false,
-      finished: false
+      finished: false,
+      isLogModalOpen: false
     };
     this.planner = new BasicTrainPlanner();
   }
@@ -36,7 +38,8 @@ class PlannerMap extends Component {
         calculating: true,
         finished: false,
         route: null,
-        routeCoords: []
+        routeCoords: [],
+        isLogModalOpen: true
       });
       this.planner
         .query({
@@ -68,15 +71,19 @@ class PlannerMap extends Component {
               ]);
             });
           });
-          this.setState({ route: path, calculating: false, routeCoords });
+          this.setState({ route: path, routeCoords });
         })
         .on("end", () => {
           console.log("No more paths!");
-          this.setState({ calculating: false, finished: true });
+          this.setState({
+            calculating: false,
+            finished: true,
+            isLogModalOpen: false
+          });
         })
         .on("error", error => {
           console.error(error);
-          this.setState({ calculating: false });
+          this.setState({ calculating: false});
         });
     }
   };
@@ -108,6 +115,14 @@ class PlannerMap extends Component {
     });
   };
 
+  openLogModal = () => {
+    this.setState({ isLogModalOpen: true });
+  };
+
+  closeLogModal = () => {
+    this.setState({ isLogModalOpen: false });
+  };
+
   render() {
     const {
       center,
@@ -117,7 +132,8 @@ class PlannerMap extends Component {
       routeCoords,
       route,
       calculating,
-      finished
+      finished,
+      isLogModalOpen
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -127,7 +143,15 @@ class PlannerMap extends Component {
           route={route}
           finished={finished}
         ></ResultBox>
-        <LogModal open={calculating}></LogModal>
+        <LogButton
+          openLogs={this.openLogModal}
+          isLogOpen={isLogModalOpen}
+        ></LogButton>
+        <LogModal
+          open={isLogModalOpen}
+          onClose={this.closeLogModal}
+          calculating={calculating}
+        ></LogModal>
         <Map
           // eslint-disable-next-line
           style="mapbox://styles/mapbox/streets-v9"

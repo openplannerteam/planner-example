@@ -1,10 +1,8 @@
+import { Box, Container, Fab, Grid } from "@material-ui/core";
 import React, { Component } from "react";
 
-import { Box } from "@material-ui/core";
-<<<<<<< HEAD
-=======
-import Fade from "react-reveal/Fade";
->>>>>>> c4818fde02f735393deeaab94ea92a9df4801334
+import Drawer from "react-drag-drawer";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Typist from "react-typist";
 import styles from "./LogModal.module.css";
 
@@ -16,29 +14,35 @@ class LogModal extends Component {
   }
 
   render() {
-    const { open } = this.props;
+    const { open, calculating, onClose } = this.props;
     return (
-      <React.Fragment>
-        {open ? (
-          <div>
-            <Box className={styles.logModal} p={1}>
-              <Typist>
-                <h2>Calculating your route...</h2>
-              </Typist>
-              <Typist>Lorem ipsum dolor sit amet</Typist>
-              <Typist>Ut enim ad minim veniam</Typist>
-              <Typist>in reprehenderit in voluptate</Typist>
+      <Drawer open={open} modalElementClass={styles.logModal}>
+        <Container>
+          <Box p={1}>
+            <Grid container justify="center">
+              <Grid item>
+                <Fab color="primary" onClick={onClose} disabled={calculating}>
+                  <ExpandMoreIcon />
+                </Fab>
+              </Grid>
+            </Grid>
+            <h1>Execution logs</h1>
+            <Typist>
+              <h2>Calculating your route...</h2>
+            </Typist>
+            <Typist>Lorem ipsum dolor sit amet</Typist>
+            <Typist>Ut enim ad minim veniam</Typist>
+            <Typist>in reprehenderit in voluptate</Typist>
 
-              <Typist>Lorem ipsum dolor sit amet</Typist>
-              <Typist>Ut enim ad minim veniam</Typist>
-              <Typist>in reprehenderit in voluptate</Typist>
+            <Typist>Lorem ipsum dolor sit amet</Typist>
+            <Typist>Ut enim ad minim veniam</Typist>
+            <Typist>in reprehenderit in voluptate</Typist>
 
-              <Typist>Lorem ipsum dolor sit amet</Typist>
-              <Typist>Ut enim ad minim veniam</Typist>
-            </Box>
-          </div>
-        ) : null}
-      </React.Fragment>
+            <Typist>Lorem ipsum dolor sit amet</Typist>
+            <Typist>Ut enim ad minim veniam</Typist>
+          </Box>
+        </Container>
+      </Drawer>
     );
   }
 }
