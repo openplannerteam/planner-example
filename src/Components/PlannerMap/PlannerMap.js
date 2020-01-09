@@ -28,7 +28,8 @@ class PlannerMap extends Component {
       finished: false,
       isLogModalOpen: false,
       logs: [],
-      query: null
+      query: null,
+      scannedConnections: 0
     };
     this.planner = new BasicTrainPlanner();
   }
@@ -47,9 +48,10 @@ class PlannerMap extends Component {
       })
       .on(EventType.LDFetchGet, (url, duration) => {
         console.log(`[GET] ${url} (${duration}ms)`);
-        let { logs } = this.state;
+        let { logs, scannedConnections } = this.state;
         this.setState({
-          logs: [...logs, { url, duration }]
+          logs: [...logs, { url, duration }],
+          scannedConnections: scannedConnections + 1
         });
       })
       .on(EventType.Warning, e => {
@@ -61,9 +63,9 @@ class PlannerMap extends Component {
         finished: false,
         route: null,
         routeCoords: [],
-        isLogModalOpen: true,
         logs: [],
-        query: null
+        query: null,
+        scannedConnections: 0
       });
       this.planner
         .query({
@@ -106,7 +108,7 @@ class PlannerMap extends Component {
           this.setState({
             route: path,
             routeCoords,
-            center: [centerLong-0.15, centerLat],
+            center: [centerLong - 0.15, centerLat],
             zoom: [9.05]
           });
         })
@@ -186,7 +188,8 @@ class PlannerMap extends Component {
       finished,
       isLogModalOpen,
       logs,
-      query
+      query,
+      scannedConnections
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -197,9 +200,12 @@ class PlannerMap extends Component {
         ></ResultBox>
         <LogButton
           openLogs={this.openLogModal}
-          show={isLogModalOpen}
+          show={!isLogModalOpen}
         ></LogButton>
-        <LogSummary show={isLogModalOpen}></LogSummary>
+        <LogSummary
+          show={calculating || finished}
+          scannedConnections={scannedConnections}
+        ></LogSummary>
         <LogModal
           open={isLogModalOpen}
           onClose={this.closeLogModal}

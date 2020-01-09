@@ -15,7 +15,7 @@ class LogButton extends Component {
     const { openLogs, show } = this.props;
     return (
       <React.Fragment>
-        {!show ? (
+        {show ? (
           <div className={styles.logButton}>
             <Fab color="primary" onClick={openLogs}>
               <KeyboardArrowUpIcon />
