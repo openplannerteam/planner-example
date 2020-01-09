@@ -5,7 +5,6 @@ import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 import { Box } from "@material-ui/core";
 import LogButton from "../LogButton/LogButton";
 import LogModal from "../LogModal/LogModal";
-import QueryBox from "../QueryBox/QueryBox";
 import ResultBox from "../ResultBox/ResultBox";
 
 const Map = ReactMapboxGl({
@@ -163,7 +162,6 @@ class PlannerMap extends Component {
     } = this.state;
     return (
       <Box boxShadow={2}>
-        <QueryBox></QueryBox>
         <ResultBox
           calculating={calculating}
           route={route}
