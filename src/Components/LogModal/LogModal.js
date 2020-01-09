@@ -3,7 +3,8 @@ import React, { Component } from "react";
 
 import Drawer from "react-drag-drawer";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import JSONPretty from 'react-json-prettify';
+import JSONPretty from "react-json-pretty";
+import monikai from 'react-json-pretty/themes/monikai.css';
 import styles from "./LogModal.module.css";
 
 class LogModal extends Component {
@@ -14,7 +15,7 @@ class LogModal extends Component {
   }
 
   render() {
-    const { open, calculating, onClose, logs, query } = this.props;
+    const { open, calculating, onClose, logs, query, response } = this.props;
     return (
       <Drawer open={open} modalElementClass={styles.logModal}>
         <Container>
@@ -28,8 +29,8 @@ class LogModal extends Component {
             </Grid>
             <h1>Execution logs</h1>
             <h5>Executed query</h5>
-            <JSONPretty json={query}></JSONPretty>
-            <br/>
+            <JSONPretty json={query} theme={monikai}></JSONPretty>
+            <br />
             {logs.map((l, index) => (
               <p key={index}>
                 <span className={styles.yellow}>[GET]</span>{" "}
@@ -37,6 +38,13 @@ class LogModal extends Component {
                 <span className={styles.green}>({l.duration}ms)</span>
               </p>
             ))}
+            <br />
+            {response ? (
+              <React.Fragment>
+                <h5>Response</h5>
+                <JSONPretty json={response} theme={monikai}></JSONPretty>
+              </React.Fragment>
+            ) : null}
           </Box>
         </Container>
       </Drawer>

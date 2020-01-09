@@ -62,7 +62,8 @@ class PlannerMap extends Component {
         route: null,
         routeCoords: [],
         isLogModalOpen: true,
-        logs: []
+        logs: [],
+        query: null
       });
       this.planner
         .query({
@@ -178,6 +179,7 @@ class PlannerMap extends Component {
           calculating={calculating}
           logs={logs}
           query={query}
+          response={route}
         ></LogModal>
         <Map
           // eslint-disable-next-line
