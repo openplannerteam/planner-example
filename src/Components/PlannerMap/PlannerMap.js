@@ -185,7 +185,7 @@ class PlannerMap extends Component {
           // eslint-disable-next-line
           style="mapbox://styles/mapbox/streets-v9"
           containerStyle={{
-            height: "90vh",
+            height: "100vh",
             width: "100vw"
           }}
           center={center}

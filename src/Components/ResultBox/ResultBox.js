@@ -22,32 +22,46 @@ class ResultBox extends Component {
           </CardContent>
         ) : route ? (
           <CardContent>
-            {route.legs.map((leg, index) => {
-              const s = leg.steps[0]
-              return (
-                <Grid container key={index}>
-                  <Grid item xs={1}>
-                    <p>
-                      {leg.travelMode === "walking" ? (
-                        <DirectionsWalkIcon />
-                      ) : (
-                        <TrainIcon />
-                      )}
-                    </p>
+            {route.legs.map(leg=>{
+              return leg.steps.map((s, index)=>{
+                return (
+                  <Grid container key={index}>
+                    <Grid item xs={1}>
+                      <p>
+                        {leg.travelMode === "walking" ? (
+                          <DirectionsWalkIcon />
+                        ) : leg.travelMode === "train" ? (
+                          <TrainIcon />
+                        ) : null}
+                      </p>
+                    </Grid>
+                    <Grid item xs={11}>
+                      <ul style={{ listStyleType: "none" }}>
+                        <li>
+                          Duration : {(s.duration.average / 60000).toFixed(1)}{" "}
+                          minutes
+                        </li>
+                        <li>
+                          Start :{" "}
+                          {s.startLocation.name
+                            ? s.startLocation.name
+                            : s.startLocation.latitude.toFixed(4)}
+                        </li>
+                        <li>
+                          Stop :{" "}
+                          {s.stopLocation.name
+                            ? s.stopLocation.name
+                            : s.stopLocation.latitude.toFixed(4)}
+                        </li>
+                      </ul>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={11}>
-                    <ul style={{listStyleType:"none"}}>
-                      <li>Duration : {(s.duration.average/60000).toFixed(1)} minutes</li>
-                      <li>Start : {s.startLocation.name ? s.startLocation.name : s.startLocation.latitude.toFixed(4)}</li>
-                      <li>Stop : {s.stopLocation.name ? s.stopLocation.name : s.stopLocation.latitude.toFixed(4)}</li>
-                    </ul>
-                  </Grid>
-                </Grid>
-              );
+                );
+              })
             })}
           </CardContent>
         ) : finished ? (
-          <CardContent>Aucune route</CardContent>
+          <CardContent>No route found</CardContent>
         ) : null}
       </Card>
     );

@@ -1,6 +1,6 @@
 .bottomleft {
   position: absolute;
-  bottom: 15vh;
+  bottom: 5vh;
   left: 16px;
   z-index: 1;
 }
