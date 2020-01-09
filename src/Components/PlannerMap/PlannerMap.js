@@ -1,4 +1,4 @@
-import { BasicTrainPlanner, EventBus, EventType, Units } from "plannerjs";
+import { BasicTrainPlanner, EventBus, EventType, TransitCarPlanner, Units } from "plannerjs";
 import React, { Component } from "react";
 import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 
@@ -30,7 +30,7 @@ class PlannerMap extends Component {
       logs: [],
       query: null
     };
-    this.planner = new BasicTrainPlanner();
+    this.planner = new TransitCarPlanner();
   }
 
   calculateRoute = () => {
@@ -43,13 +43,13 @@ class PlannerMap extends Component {
       })
       .on(EventType.Query, query => {
         console.log("Query", query);
-        this.setState({query})
+        this.setState({ query });
       })
       .on(EventType.LDFetchGet, (url, duration) => {
         console.log(`[GET] ${url} (${duration}ms)`);
         let { logs } = this.state;
         this.setState({
-          logs: [...logs, {url, duration}]
+          logs: [...logs, { url, duration }]
         });
       })
       .on(EventType.Warning, e => {
@@ -95,7 +95,20 @@ class PlannerMap extends Component {
               ]);
             });
           });
-          this.setState({ route: path, routeCoords });
+          const startLocation = path.legs[0].steps[0].startLocation;
+          const legsCount = path.legs.length - 1;
+          const lastLegStepsCount = path.legs[legsCount].steps.length - 1;
+          const endLocation =
+            path.legs[legsCount].steps[lastLegStepsCount].stopLocation;
+          const centerLong =
+            (startLocation.longitude + endLocation.longitude) / 2;
+          const centerLat = (startLocation.latitude + endLocation.latitude) / 2;
+          this.setState({
+            route: path,
+            routeCoords,
+            center: [centerLong-0.15, centerLat],
+            zoom: [9.3]
+          });
         })
         .on("end", () => {
           console.log("No more paths!");
@@ -147,6 +160,20 @@ class PlannerMap extends Component {
     this.setState({ isLogModalOpen: false });
   };
 
+  onDragEnd = e => {
+    const newCenter = e.transform._center;
+    this.setState({ center: [newCenter.lng, newCenter.lat] }, () => {
+      console.log(this.state.center);
+    });
+  };
+
+  onZoomEnd = e => {
+    const newZoom = e.transform._zoom;
+    this.setState({ zoom: [newZoom] }, () => {
+      console.log(this.state.zoom);
+    });
+  };
+
   render() {
     const {
       center,
@@ -191,6 +218,8 @@ class PlannerMap extends Component {
           center={center}
           zoom={zoom}
           onClick={this.onMapClick}
+          onDragEnd={this.onDragEnd}
+          onZoomEnd={this.onZoomEnd}
         >
           {/* Start marker */}
           {start ? (
