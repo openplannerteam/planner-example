@@ -30,7 +30,7 @@ class PlannerMap extends Component {
       logs: [],
       query: null
     };
-    this.planner = new TransitCarPlanner();
+    this.planner = new BasicTrainPlanner();
   }
 
   calculateRoute = () => {
