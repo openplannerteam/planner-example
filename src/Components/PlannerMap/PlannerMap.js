@@ -1,4 +1,4 @@
-import { BasicTrainPlanner, EventBus, EventType, TransitCarPlanner, Units } from "plannerjs";
+import { BasicTrainPlanner, EventBus, EventType, Units } from "plannerjs";
 import React, { Component } from "react";
 import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 
@@ -107,7 +107,7 @@ class PlannerMap extends Component {
             route: path,
             routeCoords,
             center: [centerLong-0.15, centerLat],
-            zoom: [9.3]
+            zoom: [9.05]
           });
         })
         .on("end", () => {

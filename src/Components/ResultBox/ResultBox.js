@@ -12,6 +12,19 @@ class ResultBox extends Component {
 
     this.state = {};
   }
+  msToTime = duration => {
+    let minutes = parseInt((duration / (1000 * 60)) % 60);
+    let hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+    return hours !== 0
+      ? hours +
+          " Hour" +
+          (hours > 1 ? "s " : "") +
+          " and " +
+          minutes +
+          " minute" +
+          (minutes > 1 ? "s" : "")
+      : minutes + " minute" + (minutes > 1 ? "s" : "");
+  };
 
   render() {
     const { route, calculating, finished } = this.props;
@@ -23,10 +36,23 @@ class ResultBox extends Component {
           </CardContent>
         ) : route ? (
           <CardContent>
+            <h5>
+              Total duration :{" "}
+              {this.msToTime(
+                route.legs.reduce(
+                  (a, b) =>
+                    a + b.steps.reduce((c, d) => c + d.duration.average, 0),
+                  0
+                )
+              )}
+            </h5>
             {route.legs.map((leg, index) => {
               const firstStep = leg.steps[0];
               const lastStep = leg.steps[leg.steps.length - 1];
-              const duration = leg.steps.map(s=>s.duration.average).reduce((a, b)=>a+b, 0);
+              const duration = leg.steps.reduce(
+                (c, d) => c + d.duration.average,
+                0
+              );
               return (
                 <Grid container key={index}>
                   <Grid item xs={1}>
@@ -42,21 +68,22 @@ class ResultBox extends Component {
                   </Grid>
                   <Grid item xs={11}>
                     <ul style={{ listStyleType: "none" }}>
-                      <li>
-                        Duration : {(duration / 60000).toFixed(1)}{" "}
-                        minutes
-                      </li>
+                      <li>Duration : {this.msToTime(duration)}</li>
                       <li>
                         Start :{" "}
                         {firstStep.startLocation.name
                           ? firstStep.startLocation.name
-                          : firstStep.startLocation.latitude.toFixed(4)}
+                          : firstStep.startLocation.latitude.toFixed(4) +
+                            ", " +
+                            firstStep.startLocation.longitude.toFixed(4)}
                       </li>
                       <li>
                         Stop :{" "}
                         {lastStep.stopLocation.name
                           ? lastStep.stopLocation.name
-                          : lastStep.stopLocation.latitude.toFixed(4)}
+                          : lastStep.stopLocation.latitude.toFixed(4) +
+                            ", " +
+                            firstStep.stopLocation.longitude.toFixed(4)}
                       </li>
                     </ul>
                   </Grid>
