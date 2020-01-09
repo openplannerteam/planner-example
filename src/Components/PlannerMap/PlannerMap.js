@@ -5,6 +5,7 @@ import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
 import { Box } from "@material-ui/core";
 import LogButton from "../LogButton/LogButton";
 import LogModal from "../LogModal/LogModal";
+import LogSummary from "../LogSummary/LogSummary";
 import ResultBox from "../ResultBox/ResultBox";
 
 const Map = ReactMapboxGl({
@@ -169,8 +170,9 @@ class PlannerMap extends Component {
         ></ResultBox>
         <LogButton
           openLogs={this.openLogModal}
-          isLogOpen={isLogModalOpen}
+          show={isLogModalOpen}
         ></LogButton>
+        <LogSummary show={isLogModalOpen}></LogSummary>
         <LogModal
           open={isLogModalOpen}
           onClose={this.closeLogModal}

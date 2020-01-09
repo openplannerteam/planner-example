@@ -12,16 +12,16 @@ class LogButton extends Component {
   }
 
   render() {
-    const { openLogs, isLogOpen } = this.props;
+    const { openLogs, show } = this.props;
     return (
       <React.Fragment>
-        {isLogOpen ? null : (
+        {!show ? (
           <div className={styles.logButton}>
             <Fab color="primary" onClick={openLogs}>
               <KeyboardArrowUpIcon />
             </Fab>
           </div>
-        )}
+        ) : null}
       </React.Fragment>
     );
   }
