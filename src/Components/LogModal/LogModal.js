@@ -15,14 +15,14 @@ class LogModal extends Component {
   }
 
   render() {
-    const { open, calculating, onClose, logs, query, response } = this.props;
+    const { open, onClose, logs, query, response } = this.props;
     return (
       <Drawer open={open} modalElementClass={styles.logModal}>
         <Container>
           <Box p={1}>
             <Grid container justify="center">
               <Grid item>
-                <Fab color="primary" onClick={onClose} disabled={calculating}>
+                <Fab color="primary" onClick={onClose}>
                   <ExpandMoreIcon />
                 </Fab>
               </Grid>
