@@ -1,6 +1,6 @@
 import { BasicTrainPlanner, EventBus, EventType, Units } from "plannerjs";
 import React, { Component } from "react";
-import ReactMapboxGl, { Feature, Layer } from "react-mapbox-gl";
+import ReactMapboxGl, { Feature, Layer, Popup } from "react-mapbox-gl";
 
 import { Box } from "@material-ui/core";
 import LogButton from "../LogButton/LogButton";
@@ -29,7 +29,9 @@ class PlannerMap extends Component {
       isLogModalOpen: false,
       logs: [],
       query: null,
-      scannedConnections: 0
+      scannedConnections: 0,
+      routeStations: [],
+      stationPopup: null
     };
     this.planner = new BasicTrainPlanner();
   }
@@ -65,7 +67,9 @@ class PlannerMap extends Component {
         routeCoords: [],
         logs: [],
         query: null,
-        scannedConnections: 0
+        scannedConnections: 0,
+        routeStations: [],
+        stationPopup: null
       });
       this.planner
         .query({
@@ -85,16 +89,31 @@ class PlannerMap extends Component {
           console.log("this is a path");
           console.log(path);
           let routeCoords = [];
+          let routeStations = [];
           path.legs.forEach(leg => {
             leg.steps.forEach(step => {
-              routeCoords.push([
+              const startCoords = [
                 step.startLocation.longitude,
                 step.startLocation.latitude
-              ]);
-              routeCoords.push([
+              ];
+              const stopCoords = [
                 step.stopLocation.longitude,
                 step.stopLocation.latitude
-              ]);
+              ];
+              routeCoords.push(startCoords);
+              routeCoords.push(stopCoords);
+              if (step.startLocation.name) {
+                routeStations.push({
+                  coords: startCoords,
+                  name: step.startLocation.name
+                });
+              }
+              if (step.stopLocation.name) {
+                routeStations.push({
+                  coords: stopCoords,
+                  name: step.stopLocation.name
+                });
+              }
             });
           });
           const startLocation = path.legs[0].steps[0].startLocation;
@@ -109,7 +128,8 @@ class PlannerMap extends Component {
             route: path,
             routeCoords,
             center: [centerLong - 0.15, centerLat],
-            zoom: [9.05]
+            zoom: [9.05],
+            routeStations
           });
         })
         .on("end", () => {
@@ -176,6 +196,14 @@ class PlannerMap extends Component {
     });
   };
 
+  showPopup = station => {
+    this.setState({ stationPopup: station });
+  };
+
+  hidePopup = station => {
+    this.setState({ stationPopup: null });
+  };
+
   render() {
     const {
       center,
@@ -189,8 +217,24 @@ class PlannerMap extends Component {
       isLogModalOpen,
       logs,
       query,
-      scannedConnections
+      scannedConnections,
+      routeStations,
+      stationPopup
     } = this.state;
+    const stationsMarkers = routeStations.map((s, index) => {
+      return (
+        <Feature
+          onMouseEnter={() => {
+            this.showPopup(s);
+          }}
+          onMouseLeave={() => {
+            this.hidePopup(s);
+          }}
+          key={index}
+          coordinates={s.coords}
+        ></Feature>
+      );
+    });
     return (
       <Box boxShadow={2}>
         <ResultBox
@@ -258,6 +302,27 @@ class PlannerMap extends Component {
                 onDragEnd={this.destinationDragEnd}
               ></Feature>
             </Layer>
+          ) : null}
+          {/* Stations markers */}
+          {routeStations.length > 0 ? (
+            <React.Fragment>
+              <Layer
+                // type="circle"
+                // paint={{
+                //   "circle-radius": 7,
+                //   "circle-color": "#6b7cff"
+                // }}
+                type="symbol"
+                layout={{ "icon-image": "rail-15" }}
+              >
+                {stationsMarkers}
+              </Layer>
+              {stationPopup ? (
+                <Popup coordinates={stationPopup.coords}>
+                  <h4>{stationPopup.name}</h4>
+                </Popup>
+              ) : null}
+            </React.Fragment>
           ) : null}
           <Layer
             type="line"
