@@ -34,10 +34,6 @@ class PlannerMap extends Component {
       stationPopup: null
     };
     this.planner = new BasicTrainPlanner();
-  }
-
-  calculateRoute = () => {
-    const { start, destination } = this.state;
     EventBus.on(EventType.InvalidQuery, error => {
       console.log("InvalidQuery", error);
     })
@@ -59,6 +55,10 @@ class PlannerMap extends Component {
       .on(EventType.Warning, e => {
         console.warn(e);
       });
+  }
+
+  calculateRoute = () => {
+    const { start, destination } = this.state;
     if (start && destination) {
       this.setState({
         calculating: true,
@@ -84,13 +84,14 @@ class PlannerMap extends Component {
           maximumTravelDuration: Units.fromHours(1.5),
           maximumTransfers: 4
         })
-        .take(3)
+        .take(1)
         .on("data", path => {
           console.log("this is a path");
           console.log(path);
           let routeCoords = [];
           let routeStations = [];
           path.legs.forEach(leg => {
+            let coords = [];
             leg.steps.forEach(step => {
               const startCoords = [
                 step.startLocation.longitude,
@@ -100,8 +101,8 @@ class PlannerMap extends Component {
                 step.stopLocation.longitude,
                 step.stopLocation.latitude
               ];
-              routeCoords.push(startCoords);
-              routeCoords.push(stopCoords);
+              coords.push(startCoords);
+              coords.push(stopCoords);
               if (step.startLocation.name) {
                 routeStations.push({
                   coords: startCoords,
@@ -114,6 +115,10 @@ class PlannerMap extends Component {
                   name: step.stopLocation.name
                 });
               }
+            });
+            routeCoords.push({
+              coords: [...coords],
+              travelMode: leg.travelMode
             });
           });
           if (path.legs[0].steps.length > 0) {
@@ -202,7 +207,7 @@ class PlannerMap extends Component {
     this.setState({ stationPopup: station });
   };
 
-  hidePopup = station => {
+  hidePopup = () => {
     this.setState({ stationPopup: null });
   };
 
@@ -230,7 +235,7 @@ class PlannerMap extends Component {
             this.showPopup(s);
           }}
           onMouseLeave={() => {
-            this.hidePopup(s);
+            this.hidePopup();
           }}
           key={index}
           coordinates={s.coords}
@@ -267,6 +272,7 @@ class PlannerMap extends Component {
             height: "100vh",
             width: "100vw"
           }}
+          onDrag={()=>{console.log("dragging")}}
           center={center}
           zoom={zoom}
           onClick={this.onMapClick}
@@ -284,7 +290,7 @@ class PlannerMap extends Component {
             >
               <Feature
                 coordinates={[start.lng, start.lat]}
-                draggable
+                draggable={!calculating}
                 onDragEnd={this.startDragEnd}
               ></Feature>
             </Layer>
@@ -300,11 +306,47 @@ class PlannerMap extends Component {
             >
               <Feature
                 coordinates={[destination.lng, destination.lat]}
-                draggable
+                draggable={!calculating}
                 onDragEnd={this.destinationDragEnd}
               ></Feature>
             </Layer>
           ) : null}
+          {routeCoords
+            .filter(c => c.travelMode === "train")
+            .map((c, index) => (
+              <Layer
+                key={index}
+                type="line"
+                layout={{
+                  "line-cap": "round",
+                  "line-join": "round"
+                }}
+                paint={{
+                  "line-color": "#005eab",
+                  "line-width": 4
+                }}
+              >
+                <Feature coordinates={c.coords} />
+              </Layer>
+            ))}
+          {routeCoords
+            .filter(c => c.travelMode === "walking")
+            .map((c, index) => (
+              <Layer
+                key={index}
+                type="line"
+                layout={{
+                  "line-cap": "round",
+                  "line-join": "round"
+                }}
+                paint={{
+                  "line-color": "#f7ff00",
+                  "line-width": 4
+                }}
+              >
+                <Feature coordinates={c.coords} />
+              </Layer>
+            ))}
           {/* Stations markers */}
           {routeStations.length > 0 ? (
             <React.Fragment>
@@ -326,19 +368,6 @@ class PlannerMap extends Component {
               ) : null}
             </React.Fragment>
           ) : null}
-          <Layer
-            type="line"
-            layout={{
-              "line-cap": "round",
-              "line-join": "round"
-            }}
-            paint={{
-              "line-color": "#28A987",
-              "line-width": 4
-            }}
-          >
-            <Feature coordinates={routeCoords} />
-          </Layer>
         </Map>
       </Box>
     );
