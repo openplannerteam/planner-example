@@ -116,21 +116,25 @@ class PlannerMap extends Component {
               }
             });
           });
-          const startLocation = path.legs[0].steps[0].startLocation;
-          const legsCount = path.legs.length - 1;
-          const lastLegStepsCount = path.legs[legsCount].steps.length - 1;
-          const endLocation =
-            path.legs[legsCount].steps[lastLegStepsCount].stopLocation;
-          const centerLong =
-            (startLocation.longitude + endLocation.longitude) / 2;
-          const centerLat = (startLocation.latitude + endLocation.latitude) / 2;
-          this.setState({
-            route: path,
-            routeCoords,
-            center: [centerLong - 0.15, centerLat],
-            zoom: [9.05],
-            routeStations
-          });
+          if (path.legs[0].steps.length > 0) {
+            const startLocation = path.legs[0].steps[0].startLocation;
+            const legsCount = path.legs.length - 1;
+            const lastLegStepsCount = path.legs[legsCount].steps.length - 1;
+            const endLocation =
+              path.legs[legsCount].steps[lastLegStepsCount].stopLocation;
+            const centerLong =
+              (startLocation.longitude + endLocation.longitude) / 2;
+            const centerLat =
+              (startLocation.latitude + endLocation.latitude) / 2;
+
+            this.setState({
+              route: path,
+              routeCoords,
+              center: [centerLong, centerLat],
+              zoom: [9.05],
+              routeStations
+            });
+          }
         })
         .on("end", () => {
           console.log("No more paths!");
@@ -150,9 +154,7 @@ class PlannerMap extends Component {
   onMapClick = (map, e) => {
     const coord = e.lngLat;
     if (!this.state.start) {
-      this.setState({ start: coord }, () => {
-        console.log(this.state);
-      });
+      this.setState({ start: coord });
     } else if (!this.state.destination) {
       this.setState({ destination: coord }, () => {
         this.calculateRoute();
