@@ -54,7 +54,15 @@ class ResultBox extends Component {
                 0
               );
               return (
-                <Grid container key={index}>
+                <Grid
+                  container
+                  key={index}
+                  className={`${styles.legBox} ${
+                    leg.travelMode === "walking"
+                      ? styles.borderYellow
+                      : styles.borderBlue
+                  }`}
+                >
                   <Grid item xs={1}>
                     <p>
                       {leg.travelMode === "walking" ? (
