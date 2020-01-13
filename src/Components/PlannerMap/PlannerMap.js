@@ -84,7 +84,7 @@ class PlannerMap extends Component {
           maximumTravelDuration: Units.fromHours(1.5),
           maximumTransfers: 4
         })
-        .take(1)
+        .take(3)
         .on("data", path => {
           console.log("this is a path");
           console.log(path);
@@ -189,20 +189,6 @@ class PlannerMap extends Component {
     this.setState({ isLogModalOpen: false });
   };
 
-  onDragEnd = e => {
-    const newCenter = e.transform._center;
-    this.setState({ center: [newCenter.lng, newCenter.lat] }, () => {
-      console.log(this.state.center);
-    });
-  };
-
-  onZoomEnd = e => {
-    const newZoom = e.transform._zoom;
-    this.setState({ zoom: [newZoom] }, () => {
-      console.log(this.state.zoom);
-    });
-  };
-
   showPopup = station => {
     this.setState({ stationPopup: station });
   };
@@ -273,8 +259,6 @@ class PlannerMap extends Component {
           center={center}
           zoom={zoom}
           onClick={this.onMapClick}
-          onDragEnd={this.onDragEnd}
-          onZoomEnd={this.onZoomEnd}
         >
           {/* Start marker */}
           {start ? (
