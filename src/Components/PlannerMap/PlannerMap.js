@@ -1,12 +1,15 @@
 import { BasicTrainPlanner, EventBus, EventType, Units } from "plannerjs";
 import React, { Component } from "react";
-import ReactMapboxGl, { Feature, Layer, Popup } from "react-mapbox-gl";
 
 import { Box } from "@material-ui/core";
 import LogButton from "../LogButton/LogButton";
 import LogModal from "../LogModal/LogModal";
 import LogSummary from "../LogSummary/LogSummary";
+import PointMarkerLayer from "../MapLayers/PointMarkerLayer";
+import ReactMapboxGl from "react-mapbox-gl";
 import ResultBox from "../ResultBox/ResultBox";
+import RouteLayer from "../MapLayers/RouteLayer";
+import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -214,18 +217,6 @@ class PlannerMap extends Component {
       routeStations,
       stationPopup
     } = this.state;
-    const stationsMarkers = routeStations.map((s, index) => {
-      return (
-        <Feature
-          onMouseEnter={() => {
-            this.showPopup(s);
-          }}
-          onMouseLeave={this.hidePopup}
-          key={index}
-          coordinates={s.coords}
-        ></Feature>
-      );
-    });
     return (
       <Box boxShadow={2}>
         <ResultBox
@@ -260,91 +251,20 @@ class PlannerMap extends Component {
           zoom={zoom}
           onClick={this.onMapClick}
         >
-          {/* Start marker */}
-          {start ? (
-            <Layer
-              type="circle"
-              paint={{
-                "circle-radius": 7,
-                "circle-color": "#3887be"
-              }}
-            >
-              <Feature
-                coordinates={[start.lng, start.lat]}
-                draggable={!calculating}
-                onDragEnd={this.startDragEnd}
-              ></Feature>
-            </Layer>
-          ) : null}
-          {/* Destination marker */}
-          {destination ? (
-            <Layer
-              type="circle"
-              paint={{
-                "circle-radius": 7,
-                "circle-color": "#6b7cff"
-              }}
-            >
-              <Feature
-                coordinates={[destination.lng, destination.lat]}
-                draggable={!calculating}
-                onDragEnd={this.destinationDragEnd}
-              ></Feature>
-            </Layer>
-          ) : null}
-          {routeCoords
-            .filter(c => c.travelMode === "train" || c.travelMode === "profile")
-            .map((c, index) => (
-              <Layer
-                key={index}
-                type="line"
-                layout={{
-                  "line-cap": "round",
-                  "line-join": "round"
-                }}
-                paint={{
-                  "line-color": "#005eab", //blue
-                  "line-width": 4
-                }}
-              >
-                <Feature coordinates={c.coords} />
-              </Layer>
-            ))}
-          {/* Walking routes */}
-          {routeCoords
-            .filter(c => c.travelMode === "walking")
-            .map((c, index) => (
-              <Layer
-                key={index}
-                type="line"
-                layout={{
-                  "line-cap": "round",
-                  "line-join": "round"
-                }}
-                paint={{
-                  "line-color": "#f7ff00", //yellow
-                  "line-width": 4
-                }}
-              >
-                <Feature coordinates={c.coords} />
-              </Layer>
-            ))}
-          {/* Stations markers */}
-          {routeStations.length > 0 ? (
-            <React.Fragment>
-              <Layer
-                type="symbol"
-                layout={{ "icon-image": "rail-15" }}
-              >
-                {stationsMarkers}
-              </Layer>
-              {stationPopup ? (
-                <Popup coordinates={stationPopup.coords}>
-                  <h4>{stationPopup.name}</h4>
-                </Popup>
-              ) : null}
-            </React.Fragment>
-          ) : null}
+          <PointMarkerLayer
+            startPoint={start}
+            destinationPoint={destination}
+            startDragEnd={this.startDragEnd}
+            destinationDragEnd={this.destinationDragEnd}
+            calculating={calculating}
+          ></PointMarkerLayer>
+          <RouteLayer routeCoords={routeCoords}></RouteLayer>
+          <StationMarkerLayer
+            routeStations={routeStations}
+            showPopup={this.showPopup}
+            hidePopup={this.hidePopup}
+            stationPopup={stationPopup}
+          ></StationMarkerLayer>
         </Map>
       </Box>
     );
