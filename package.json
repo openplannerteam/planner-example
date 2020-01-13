@@ -17,7 +17,8 @@
     "react-mapbox-gl": "^4.8.1",
     "react-reveal": "^1.2.2",
     "react-scripts": "3.3.0",
-    "react-typist": "^2.0.5"
+    "react-typist": "^2.0.5",
+    "serialize-javascript": "^2.1.2"
   },
   "scripts": {
     "start": "react-scripts start",
