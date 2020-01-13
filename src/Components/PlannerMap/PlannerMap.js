@@ -234,9 +234,7 @@ class PlannerMap extends Component {
           onMouseEnter={() => {
             this.showPopup(s);
           }}
-          onMouseLeave={() => {
-            this.hidePopup();
-          }}
+          onMouseLeave={this.hidePopup}
           key={index}
           coordinates={s.coords}
         ></Feature>
@@ -272,7 +270,6 @@ class PlannerMap extends Component {
             height: "100vh",
             width: "100vw"
           }}
-          onDrag={()=>{console.log("dragging")}}
           center={center}
           zoom={zoom}
           onClick={this.onMapClick}
@@ -312,7 +309,7 @@ class PlannerMap extends Component {
             </Layer>
           ) : null}
           {routeCoords
-            .filter(c => c.travelMode === "train")
+            .filter(c => c.travelMode === "train" || c.travelMode === "profile")
             .map((c, index) => (
               <Layer
                 key={index}
@@ -322,13 +319,14 @@ class PlannerMap extends Component {
                   "line-join": "round"
                 }}
                 paint={{
-                  "line-color": "#005eab",
+                  "line-color": "#005eab", //blue
                   "line-width": 4
                 }}
               >
                 <Feature coordinates={c.coords} />
               </Layer>
             ))}
+          {/* Walking routes */}
           {routeCoords
             .filter(c => c.travelMode === "walking")
             .map((c, index) => (
@@ -340,7 +338,7 @@ class PlannerMap extends Component {
                   "line-join": "round"
                 }}
                 paint={{
-                  "line-color": "#f7ff00",
+                  "line-color": "#f7ff00", //yellow
                   "line-width": 4
                 }}
               >
@@ -351,11 +349,6 @@ class PlannerMap extends Component {
           {routeStations.length > 0 ? (
             <React.Fragment>
               <Layer
-                // type="circle"
-                // paint={{
-                //   "circle-radius": 7,
-                //   "circle-color": "#6b7cff"
-                // }}
                 type="symbol"
                 layout={{ "icon-image": "rail-15" }}
               >
