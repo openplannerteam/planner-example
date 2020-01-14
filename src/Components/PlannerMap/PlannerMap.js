@@ -34,7 +34,8 @@ class PlannerMap extends Component {
       query: null,
       scannedConnections: 0,
       routeStations: [],
-      stationPopup: null
+      stationPopup: null,
+      fitBounds: null
     };
     this.planner = new BasicTrainPlanner();
     EventBus.on(EventType.InvalidQuery, error => {
@@ -72,7 +73,8 @@ class PlannerMap extends Component {
         query: null,
         scannedConnections: 0,
         routeStations: [],
-        stationPopup: null
+        stationPopup: null,
+        fitBounds: null
       });
       this.planner
         .query({
@@ -132,16 +134,13 @@ class PlannerMap extends Component {
             const lastLegStepsCount = path.legs[legsCount].steps.length - 1;
             const endLocation =
               path.legs[legsCount].steps[lastLegStepsCount].stopLocation;
-            const centerLong =
-              (startLocation.longitude + endLocation.longitude) / 2;
-            const centerLat =
-              (startLocation.latitude + endLocation.latitude) / 2;
-
             this.setState({
               route: path,
               routeCoords,
-              center: [centerLong, centerLat],
-              zoom: [9.05],
+              fitBounds: [
+                [startLocation.longitude, startLocation.latitude],
+                [endLocation.longitude, endLocation.latitude]
+              ],
               routeStations
             });
           }
@@ -217,7 +216,8 @@ class PlannerMap extends Component {
       query,
       scannedConnections,
       routeStations,
-      stationPopup
+      stationPopup,
+      fitBounds
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -252,6 +252,10 @@ class PlannerMap extends Component {
           center={center}
           zoom={zoom}
           onClick={this.onMapClick}
+          fitBounds={fitBounds}
+          fitBoundsOptions={{
+            padding: { top: 100, right: 100, bottom: 200, left: 500 }
+          }}
         >
           <PointMarkerLayer
             startPoint={start}
