@@ -27,7 +27,7 @@ class ResultBox extends Component {
   };
 
   render() {
-    const { route, calculating, finished } = this.props;
+    const { route, calculating, finished, setFitBounds } = this.props;
     return (
       <Card className={styles.bottomleft}>
         {calculating ? (
@@ -62,6 +62,18 @@ class ResultBox extends Component {
                       ? styles.borderYellow
                       : styles.borderBlue
                   }`}
+                  onClick={() => {
+                    setFitBounds([
+                      [
+                        firstStep.startLocation.longitude,
+                        firstStep.startLocation.latitude
+                      ],
+                      [
+                        lastStep.stopLocation.longitude,
+                        lastStep.stopLocation.latitude
+                      ]
+                    ]);
+                  }}
                 >
                   <Grid item xs={1}>
                     <p>

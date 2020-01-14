@@ -61,6 +61,12 @@ class PlannerMap extends Component {
       });
   }
 
+  setFitBounds = fitBounds => {
+    this.setState({
+      fitBounds
+    })
+  }
+
   calculateRoute = () => {
     const { start, destination } = this.state;
     if (start && destination) {
@@ -225,6 +231,7 @@ class PlannerMap extends Component {
           calculating={calculating}
           route={route}
           finished={finished}
+          setFitBounds={this.setFitBounds}
         ></ResultBox>
         <LogButton
           openLogs={this.openLogModal}
