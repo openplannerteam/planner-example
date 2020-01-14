@@ -150,12 +150,14 @@ class PlannerMap extends Component {
               routeStations
             });
           }
+          if (!this.state.calculating){
+            this.setState({finished: true});
+          }
         })
         .on("end", () => {
           console.log("No more paths!");
           this.setState({
             calculating: false,
-            finished: true,
             isLogModalOpen: false
           });
         })
@@ -261,7 +263,7 @@ class PlannerMap extends Component {
           onClick={this.onMapClick}
           fitBounds={fitBounds}
           fitBoundsOptions={{
-            padding: { top: 100, right: 100, bottom: 200, left: 500 }
+            padding: { top: 100, right: 150, bottom: 200, left: 470 }
           }}
         >
           <PointMarkerLayer
