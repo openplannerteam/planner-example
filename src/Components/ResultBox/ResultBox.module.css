@@ -8,6 +8,7 @@
 .legBox{
   border-left: 3px solid;
   cursor: pointer;
+  border-radius: 10px;
 }
 
 .legBox:hover{
