@@ -88,12 +88,14 @@ class PlannerMap extends Component {
           maximumTransfers: 4
         })
         .take(3)
-        .on("data", path => {
+        .on("data", async path => {
           console.log("this is a path");
           console.log(path);
+          const completePath = await this.planner.completePath(path);
+          console.log(completePath);
           let routeCoords = [];
           let routeStations = [];
-          path.legs.forEach(leg => {
+          completePath.legs.forEach((leg, index) => {
             let coords = [];
             leg.steps.forEach(step => {
               const startCoords = [
@@ -121,7 +123,7 @@ class PlannerMap extends Component {
             });
             routeCoords.push({
               coords: [...coords],
-              travelMode: leg.travelMode
+              travelMode: path.legs[index].travelMode
             });
           });
           if (path.legs[0].steps.length > 0) {
