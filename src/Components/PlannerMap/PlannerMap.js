@@ -7,6 +7,7 @@ import LogModal from "../LogModal/LogModal";
 import LogSummary from "../LogSummary/LogSummary";
 import PointMarkerLayer from "../MapLayers/PointMarkerLayer";
 import ReactMapboxGl from "react-mapbox-gl";
+import ResetButton from "../ResetButton/ResetButton";
 import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
 import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
@@ -64,24 +65,35 @@ class PlannerMap extends Component {
   setFitBounds = fitBounds => {
     this.setState({
       fitBounds
-    })
-  }
+    });
+  };
+
+  resetRoute = (complete) => {
+    this.setState({
+      finished: false,
+      route: null,
+      routeCoords: [],
+      logs: [],
+      query: null,
+      scannedConnections: 0,
+      routeStations: [],
+      stationPopup: null,
+      fitBounds: null
+    });
+    if (complete){
+      this.setState({
+        start: null,
+        destination: null
+      })
+    }
+  };
 
   calculateRoute = () => {
     const { start, destination } = this.state;
     if (start && destination) {
+      this.resetRoute();
       this.setState({
-        calculating: true,
-        finished: false,
-        route: null,
-        routeCoords: [],
-        logs: [],
-        query: null,
-        scannedConnections: 0,
-        routeStations: [],
-        stationPopup: null,
-        fitBounds: null
-      });
+        calculating: true});
       this.planner
         .query({
           from: { longitude: start.lng, latitude: start.lat },
@@ -150,8 +162,8 @@ class PlannerMap extends Component {
               routeStations
             });
           }
-          if (!this.state.calculating){
-            this.setState({finished: true});
+          if (!this.state.calculating) {
+            this.setState({ finished: true });
           }
         })
         .on("end", () => {
@@ -251,6 +263,7 @@ class PlannerMap extends Component {
           query={query}
           response={route}
         ></LogModal>
+        <ResetButton show={finished} resetRoute={this.resetRoute}></ResetButton>
         <Map
           // eslint-disable-next-line
           style="mapbox://styles/mapbox/streets-v9"
