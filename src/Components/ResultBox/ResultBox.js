@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import DirectionsWalkIcon from "@material-ui/icons/DirectionsWalk";
 import DriveEtaIcon from "@material-ui/icons/DriveEta";
 import TrainIcon from "@material-ui/icons/Train";
+import { TravelMode } from "plannerjs";
 import styles from "./ResultBox.module.css";
 
 class ResultBox extends Component {
@@ -58,7 +59,7 @@ class ResultBox extends Component {
                   container
                   key={index}
                   className={`${styles.legBox} ${
-                    leg.travelMode === "walking"
+                    leg.travelMode === TravelMode.Walking
                       ? styles.borderYellow
                       : styles.borderBlue
                   }`}
@@ -77,11 +78,11 @@ class ResultBox extends Component {
                 >
                   <Grid item xs={1}>
                     <p>
-                      {leg.travelMode === "walking" ? (
+                      {leg.travelMode === TravelMode.Walking ? (
                         <DirectionsWalkIcon />
-                      ) : leg.travelMode === "train" ? (
+                      ) : leg.travelMode === TravelMode.Train ? (
                         <TrainIcon />
-                      ) : leg.travelMode === "profile" ? (
+                      ) : leg.travelMode === TravelMode.Profile ? (
                         <DriveEtaIcon />
                       ) : null}
                     </p>

@@ -1,6 +1,8 @@
 import { Feature, Layer } from "react-mapbox-gl";
 import React, { Component } from "react";
 
+import { TravelMode } from "plannerjs";
+
 class RouteLayer extends Component {
   constructor(props) {
     super(props);
@@ -15,7 +17,7 @@ class RouteLayer extends Component {
         {routeCoords && routeCoords.length > 0
           ? routeCoords
               .filter(
-                c => c.travelMode === "train" || c.travelMode === "profile"
+                c => c.travelMode === TravelMode.Train || c.travelMode === TravelMode.Profile
               )
               .map((c, index) => (
                 <Layer
@@ -36,7 +38,7 @@ class RouteLayer extends Component {
           : null}
         {routeCoords && routeCoords.length > 0
           ? routeCoords
-              .filter(c => c.travelMode === "walking")
+              .filter(c => c.travelMode === TravelMode.Walking)
               .map((c, index) => (
                 <Layer
                   key={index}
