@@ -22,7 +22,7 @@ class PlannerMap extends Component {
     super(props);
 
     this.state = {
-      center: [4.5118, 50.6282],
+      center: [4.5118, 50.6282], //Belgium
       zoom: [8],
       start: null,
       destination: null,
@@ -70,6 +70,8 @@ class PlannerMap extends Component {
 
   resetRoute = (complete) => {
     this.setState({
+      center: [4.5118, 50.6282],
+      zoom: [8],
       finished: false,
       route: null,
       routeCoords: [],
