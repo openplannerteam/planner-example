@@ -1,4 +1,10 @@
-import { BasicTrainPlanner, EventBus, EventType, Units } from "plannerjs";
+import {
+  BasicTrainPlanner,
+  EventBus,
+  EventType,
+  TransitCarPlanner,
+  Units
+} from "plannerjs";
 import React, { Component } from "react";
 
 import { Box } from "@material-ui/core";
@@ -10,6 +16,7 @@ import ReactMapboxGl from "react-mapbox-gl";
 import ResetButton from "../ResetButton/ResetButton";
 import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
+import SettingsBox from "../SettingsBox/SettingsBox";
 import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
 
 const Map = ReactMapboxGl({
@@ -36,9 +43,11 @@ class PlannerMap extends Component {
       scannedConnections: 0,
       routeStations: [],
       stationPopup: null,
-      fitBounds: null
+      fitBounds: null,
+      publicTransport: true
     };
-    this.planner = new BasicTrainPlanner();
+    this.trainPlanner = new BasicTrainPlanner();
+    this.carPlanner = new TransitCarPlanner();
     EventBus.on(EventType.InvalidQuery, error => {
       console.log("InvalidQuery", error);
     })
@@ -68,7 +77,7 @@ class PlannerMap extends Component {
     });
   };
 
-  resetRoute = (complete) => {
+  resetRoute = complete => {
     this.setState({
       center: [4.5118, 50.6282],
       zoom: [8],
@@ -82,21 +91,23 @@ class PlannerMap extends Component {
       stationPopup: null,
       fitBounds: null
     });
-    if (complete){
+    if (complete) {
       this.setState({
         start: null,
         destination: null
-      })
+      });
     }
   };
 
   calculateRoute = () => {
-    const { start, destination } = this.state;
+    const { start, destination, publicTransport } = this.state;
     if (start && destination) {
       this.resetRoute();
       this.setState({
-        calculating: true});
-      this.planner
+        calculating: true
+      });
+      const planner = publicTransport ? this.trainPlanner : this.carPlanner;
+      planner
         .query({
           from: { longitude: start.lng, latitude: start.lat },
           to: { longitude: destination.lng, latitude: destination.lat },
@@ -113,7 +124,7 @@ class PlannerMap extends Component {
         .on("data", async path => {
           console.log("this is a path");
           console.log(path);
-          const completePath = await this.planner.completePath(path);
+          const completePath = await planner.completePath(path);
           console.log(completePath);
           let routeCoords = [];
           let routeStations = [];
@@ -223,6 +234,11 @@ class PlannerMap extends Component {
     this.setState({ stationPopup: null });
   };
 
+  switchPublicTransport = () => {
+    this.setState({ publicTransport: !this.state.publicTransport });
+    this.resetRoute(true);
+  };
+
   render() {
     const {
       center,
@@ -239,7 +255,8 @@ class PlannerMap extends Component {
       scannedConnections,
       routeStations,
       stationPopup,
-      fitBounds
+      fitBounds,
+      publicTransport
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -265,6 +282,10 @@ class PlannerMap extends Component {
           query={query}
           response={route}
         ></LogModal>
+        <SettingsBox
+          publicTransport={publicTransport}
+          switchPublicTransport={this.switchPublicTransport}
+        ></SettingsBox>
         <ResetButton show={finished} resetRoute={this.resetRoute}></ResetButton>
         <Map
           // eslint-disable-next-line
