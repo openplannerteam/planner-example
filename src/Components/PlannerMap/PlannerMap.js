@@ -13,6 +13,7 @@ import LogButton from "../LogButton/LogButton";
 import LogModal from "../LogModal/LogModal";
 import LogSummary from "../LogSummary/LogSummary";
 import PointMarkerLayer from "../MapLayers/PointMarkerLayer";
+import PointReacherLayer from "../MapLayers/PointReachedLayer";
 import ReactMapboxGl from "react-mapbox-gl";
 import ResetButton from "../ResetButton/ResetButton";
 import ResultBox from "../ResultBox/ResultBox";
@@ -47,7 +48,8 @@ class PlannerMap extends Component {
       fitBounds: null,
       publicTransport: true,
       profile: "walking",
-      triangleDemo: false
+      triangleDemo: false,
+      pointReached: []
     };
     this.trainPlanner = new BasicTrainPlanner();
     this.carPlanner = new TransitCarPlanner();
@@ -72,6 +74,16 @@ class PlannerMap extends Component {
       })
       .on(EventType.Warning, e => {
         console.warn(e);
+      })
+      .on(EventType.PointReached, async p => {
+        try {
+          const point = await p;
+          this.setState({
+            pointReached: [...this.state.pointReached, point]
+          });
+        } catch (error) {
+          console.log(error);
+        }
       });
   }
 
@@ -93,7 +105,8 @@ class PlannerMap extends Component {
       scannedConnections: 0,
       routeStations: [],
       stationPopup: null,
-      fitBounds: null
+      fitBounds: null,
+      pointReached: []
     });
     if (complete) {
       this.setState({
@@ -277,7 +290,8 @@ class PlannerMap extends Component {
       fitBounds,
       publicTransport,
       profile,
-      triangleDemo
+      triangleDemo,
+      pointReached
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -340,6 +354,7 @@ class PlannerMap extends Component {
             hidePopup={this.hidePopup}
             stationPopup={stationPopup}
           ></StationMarkerLayer>
+          <PointReacherLayer pointReached={pointReached}></PointReacherLayer>
         </Map>
       </Box>
     );

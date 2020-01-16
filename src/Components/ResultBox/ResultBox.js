@@ -30,7 +30,6 @@ class ResultBox extends Component {
 
   render() {
     const { route, calculating, finished, setFitBounds, profile } = this.props;
-    console.log(profile);
     return (
       <Card className={styles.bottomleft}>
         {calculating ? (
