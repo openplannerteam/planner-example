@@ -5,20 +5,26 @@
   z-index: 1;
 }
 
-.legBox{
+.legBox {
   border-left: 3px solid;
   cursor: pointer;
   border-radius: 10px;
 }
 
-.legBox:hover{
+.legBox:hover {
   background-color: #d9d9d9;
 }
 
-.borderYellow{
+.borderWalking {
   border-color: #f7ff00;
 }
 
-.borderBlue{
-border-color: #005eab;
+.borderTrain {
+  border-color: #005eab;
+}
+.borderBus {
+  border-color: #048f04;
+}
+.borderCar {
+  border-color: #6b03fc;
 }

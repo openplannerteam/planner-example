@@ -3,6 +3,7 @@ import {
   EventBus,
   EventType,
   TransitCarPlanner,
+  TriangleDemoPlanner,
   Units
 } from "plannerjs";
 import React, { Component } from "react";
@@ -44,7 +45,8 @@ class PlannerMap extends Component {
       routeStations: [],
       stationPopup: null,
       fitBounds: null,
-      publicTransport: true
+      publicTransport: true,
+      profile: "walking"
     };
     this.trainPlanner = new BasicTrainPlanner();
     this.carPlanner = new TransitCarPlanner();
@@ -100,13 +102,14 @@ class PlannerMap extends Component {
   };
 
   calculateRoute = () => {
-    const { start, destination, publicTransport } = this.state;
+    const { start, destination } = this.state;
     if (start && destination) {
       this.resetRoute();
       this.setState({
         calculating: true
       });
-      const planner = publicTransport ? this.trainPlanner : this.carPlanner;
+      // const planner = publicTransport ? this.trainPlanner : this.carPlanner;
+      const planner = new TriangleDemoPlanner();
       planner
         .query({
           from: { longitude: start.lng, latitude: start.lat },
@@ -156,7 +159,7 @@ class PlannerMap extends Component {
             });
             routeCoords.push({
               coords: [...coords],
-              travelMode: path.legs[index].travelMode
+              travelMode: leg.travelMode
             });
           });
           if (path.legs[0].steps.length > 0) {
@@ -166,7 +169,7 @@ class PlannerMap extends Component {
             const endLocation =
               path.legs[legsCount].steps[lastLegStepsCount].stopLocation;
             this.setState({
-              route: path,
+              route: completePath,
               routeCoords,
               fitBounds: [
                 [startLocation.longitude, startLocation.latitude],
@@ -235,7 +238,10 @@ class PlannerMap extends Component {
   };
 
   switchPublicTransport = () => {
-    this.setState({ publicTransport: !this.state.publicTransport });
+    this.setState({
+      publicTransport: !this.state.publicTransport,
+      profile: "car"
+    });
     this.resetRoute(true);
   };
 
@@ -256,7 +262,8 @@ class PlannerMap extends Component {
       routeStations,
       stationPopup,
       fitBounds,
-      publicTransport
+      publicTransport,
+      profile
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -265,6 +272,7 @@ class PlannerMap extends Component {
           route={route}
           finished={finished}
           setFitBounds={this.setFitBounds}
+          profile={profile}
         ></ResultBox>
         <LogButton
           openLogs={this.openLogModal}
@@ -309,7 +317,7 @@ class PlannerMap extends Component {
             destinationDragEnd={this.destinationDragEnd}
             calculating={calculating}
           ></PointMarkerLayer>
-          <RouteLayer routeCoords={routeCoords}></RouteLayer>
+          <RouteLayer routeCoords={routeCoords} profile={profile}></RouteLayer>
           <StationMarkerLayer
             routeStations={routeStations}
             showPopup={this.showPopup}

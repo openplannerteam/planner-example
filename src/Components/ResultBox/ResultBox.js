@@ -1,6 +1,7 @@
 import { Card, CardContent, CircularProgress, Grid } from "@material-ui/core";
 import React, { Component } from "react";
 
+import DirectionsBusIcon from "@material-ui/icons/DirectionsBus";
 import DirectionsWalkIcon from "@material-ui/icons/DirectionsWalk";
 import DriveEtaIcon from "@material-ui/icons/DriveEta";
 import TrainIcon from "@material-ui/icons/Train";
@@ -28,7 +29,8 @@ class ResultBox extends Component {
   };
 
   render() {
-    const { route, calculating, finished, setFitBounds } = this.props;
+    const { route, calculating, finished, setFitBounds, profile } = this.props;
+    console.log(profile);
     return (
       <Card className={styles.bottomleft}>
         {calculating ? (
@@ -59,9 +61,18 @@ class ResultBox extends Component {
                   container
                   key={index}
                   className={`${styles.legBox} ${
-                    leg.travelMode === TravelMode.Walking
-                      ? styles.borderYellow
-                      : styles.borderBlue
+                    leg.travelMode === TravelMode.Walking ||
+                    (leg.travelMode === TravelMode.Profile &&
+                      profile === TravelMode.Walking) ? (
+                      styles.borderWalking
+                    ) : leg.travelMode === TravelMode.Train ? (
+                      styles.borderTrain
+                    ) : leg.travelMode === TravelMode.Profile &&
+                      profile === "car" ? (
+                      styles.broderCar
+                    ) : leg.travelMode === TravelMode.Bus ? (
+                      styles.borderBus
+                    ) : ""
                   }`}
                   onClick={() => {
                     setFitBounds([
@@ -78,12 +89,17 @@ class ResultBox extends Component {
                 >
                   <Grid item xs={1}>
                     <p>
-                      {leg.travelMode === TravelMode.Walking ? (
+                      {leg.travelMode === TravelMode.Walking ||
+                      (leg.travelMode === TravelMode.Profile &&
+                        profile === TravelMode.Walking) ? (
                         <DirectionsWalkIcon />
                       ) : leg.travelMode === TravelMode.Train ? (
                         <TrainIcon />
-                      ) : leg.travelMode === TravelMode.Profile ? (
+                      ) : leg.travelMode === TravelMode.Profile &&
+                        profile === "car" ? (
                         <DriveEtaIcon />
+                      ) : leg.travelMode === TravelMode.Bus ? (
+                        <DirectionsBusIcon />
                       ) : null}
                     </p>
                   </Grid>
