@@ -69,7 +69,7 @@ class ResultBox extends Component {
                       styles.borderTrain
                     ) : leg.travelMode === TravelMode.Profile &&
                       profile === "car" ? (
-                      styles.broderCar
+                      styles.borderCar
                     ) : leg.travelMode === TravelMode.Bus ? (
                       styles.borderBus
                     ) : ""

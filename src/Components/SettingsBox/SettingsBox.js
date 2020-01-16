@@ -1,6 +1,7 @@
 import {
   Card,
   CardContent,
+  Checkbox,
   FormControlLabel,
   FormGroup,
   Switch,
@@ -18,7 +19,7 @@ class SettingsBox extends Component {
   }
 
   render() {
-    const { publicTransport, switchPublicTransport } = this.props;
+    const { publicTransport, switchPublicTransport, triangleDemo, switchTriangleDemo } = this.props;
     return (
       <Card className={styles.topleft}>
         <CardContent>
@@ -35,6 +36,19 @@ class SettingsBox extends Component {
               }
               label="Use Public Transport"
             />
+            {publicTransport ? (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={triangleDemo}
+                    onChange={switchTriangleDemo}
+                    value="gilad"
+                    color="primary"
+                  />
+                }
+                label="Triangle demo planner"
+              />
+            ) : null}
           </FormGroup>
         </CardContent>
       </Card>

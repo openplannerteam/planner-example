@@ -46,10 +46,12 @@ class PlannerMap extends Component {
       stationPopup: null,
       fitBounds: null,
       publicTransport: true,
-      profile: "walking"
+      profile: "walking",
+      triangleDemo: false
     };
     this.trainPlanner = new BasicTrainPlanner();
     this.carPlanner = new TransitCarPlanner();
+    this.triangleDemoPlanner = new TriangleDemoPlanner();
     EventBus.on(EventType.InvalidQuery, error => {
       console.log("InvalidQuery", error);
     })
@@ -102,14 +104,18 @@ class PlannerMap extends Component {
   };
 
   calculateRoute = () => {
-    const { start, destination } = this.state;
+    const { start, destination, publicTransport, triangleDemo } = this.state;
     if (start && destination) {
       this.resetRoute();
       this.setState({
         calculating: true
       });
-      // const planner = publicTransport ? this.trainPlanner : this.carPlanner;
-      const planner = new TriangleDemoPlanner();
+      const planner = publicTransport
+        ? triangleDemo
+          ? this.triangleDemoPlanner
+          : this.trainPlanner
+        : this.carPlanner;
+      // const planner = new TriangleDemoPlanner();
       planner
         .query({
           from: { longitude: start.lng, latitude: start.lat },
@@ -245,6 +251,13 @@ class PlannerMap extends Component {
     this.resetRoute(true);
   };
 
+  switchTriangleDemo = () => {
+    this.setState({
+      triangleDemo: !this.state.triangleDemo
+    });
+    this.resetRoute(true);
+  };
+
   render() {
     const {
       center,
@@ -263,7 +276,8 @@ class PlannerMap extends Component {
       stationPopup,
       fitBounds,
       publicTransport,
-      profile
+      profile,
+      triangleDemo
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -293,6 +307,8 @@ class PlannerMap extends Component {
         <SettingsBox
           publicTransport={publicTransport}
           switchPublicTransport={this.switchPublicTransport}
+          triangleDemo={triangleDemo}
+          switchTriangleDemo={this.switchTriangleDemo}
         ></SettingsBox>
         <ResetButton show={finished} resetRoute={this.resetRoute}></ResetButton>
         <Map
