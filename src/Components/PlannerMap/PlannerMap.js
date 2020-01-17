@@ -160,7 +160,7 @@ class PlannerMap extends Component {
           ? this.triangleDemoPlanner
           : this.trainPlanner
         : this.carPlanner;
-      // const planner = new TriangleDemoPlanner();
+      let waiting = false;
       planner
         .query({
           from: { longitude: start.lng, latitude: start.lat },
@@ -178,6 +178,7 @@ class PlannerMap extends Component {
         .on("data", async path => {
           console.log("this is a path");
           console.log(path);
+          waiting = true;
           const completePath = await planner.completePath(path);
           console.log(completePath);
           let routeCoords = [];
@@ -229,6 +230,7 @@ class PlannerMap extends Component {
               routeStations
             });
           }
+          waiting = false;
           if (!this.state.calculating) {
             this.setState({ finished: true });
           }
@@ -239,6 +241,9 @@ class PlannerMap extends Component {
             calculating: false,
             isLogModalOpen: false
           });
+          if (!waiting) {
+            this.setState({ finished: true });
+          }
           this.stopTimer();
         })
         .on("error", error => {
