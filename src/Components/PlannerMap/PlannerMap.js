@@ -50,11 +50,13 @@ class PlannerMap extends Component {
       publicTransport: true,
       profile: "walking",
       triangleDemo: false,
-      pointReached: []
+      pointReached: [],
+      timeElapsed: 0
     };
     this.trainPlanner = new BasicTrainPlanner();
     this.carPlanner = new TransitCarPlanner();
     this.triangleDemoPlanner = new TriangleDemoPlanner();
+    this.timer = null;
     EventBus.on(EventType.InvalidQuery, error => {
       console.log("InvalidQuery", error);
     })
@@ -117,10 +119,39 @@ class PlannerMap extends Component {
     }
   };
 
+  startTimer = () => {
+    if (!this.timer) {
+      this.timer = setInterval(this.updateTime, 1000);
+    }
+  };
+
+  stopTimer = () => {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  };
+
+  resetTimer = () => {
+    if (this.timer) {
+      this.setState({
+        timeElapsed: 0
+      });
+      this.timer = null;
+    }
+  };
+
+  updateTime = () => {
+    this.setState({
+      timeElapsed: this.state.timeElapsed + 1
+    });
+  };
+
   calculateRoute = () => {
     const { start, destination, publicTransport, triangleDemo } = this.state;
     if (start && destination) {
       this.resetRoute();
+      this.resetTimer();
+      this.startTimer();
       this.setState({
         calculating: true
       });
@@ -208,6 +239,7 @@ class PlannerMap extends Component {
             calculating: false,
             isLogModalOpen: false
           });
+          this.stopTimer();
         })
         .on("error", error => {
           console.error(error);
@@ -292,7 +324,8 @@ class PlannerMap extends Component {
       publicTransport,
       profile,
       triangleDemo,
-      pointReached
+      pointReached,
+      timeElapsed
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -305,11 +338,12 @@ class PlannerMap extends Component {
         ></ResultBox>
         <LogButton
           openLogs={this.openLogModal}
-          show={!isLogModalOpen}
+          show={!isLogModalOpen && (calculating || finished)}
         ></LogButton>
         <LogSummary
           show={calculating || finished}
           scannedConnections={scannedConnections}
+          timeElapsed={timeElapsed}
         ></LogSummary>
         <LogModal
           open={isLogModalOpen}
