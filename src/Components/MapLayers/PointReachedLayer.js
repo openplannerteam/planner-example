@@ -22,8 +22,8 @@ class PointReacherLayer extends Component {
           >
             {pointReached
               .filter((p, index) => index % 10 === 0)
-              .map(p => (
-                <Feature coordinates={[p.longitude, p.latitude]}></Feature>
+              .map((p, index) => (
+                <Feature key={index} coordinates={[p.longitude, p.latitude]}></Feature>
               ))}
           </Layer>
         ) : null}
