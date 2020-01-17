@@ -3,6 +3,7 @@ import {
   EventBus,
   EventType,
   TransitCarPlanner,
+  TravelMode,
   TriangleDemoPlanner,
   Units
 } from "plannerjs";
@@ -259,7 +260,7 @@ class PlannerMap extends Component {
   switchPublicTransport = () => {
     this.setState({
       publicTransport: !this.state.publicTransport,
-      profile: "car"
+      profile: this.state.profile === "car" ? TravelMode.Walking : "car"
     });
     this.resetRoute(true);
   };
