@@ -16,8 +16,8 @@ class ResetButton extends Component {
     return (
       <React.Fragment>
         {show ? (
-          <div className={styles.resetButton}>
-            <Fab variant="extended" onClick={() => resetRoute(true)}>
+          <div className={styles.resetButtonContainer}>
+            <Fab variant="extended" color="secondary" onClick={() => resetRoute(true)} className={styles.resetButton}>
               <RotateLeftIcon className={styles.buttonIcon} />
               Reset
             </Fab>

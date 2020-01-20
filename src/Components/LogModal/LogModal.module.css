@@ -9,6 +9,10 @@
   overflow: scroll;
 }
 
+.logModal a{
+  color: blanchedalmond;
+}
+
 .yellow{
   color: yellow;
 }
