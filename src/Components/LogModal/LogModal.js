@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import Drawer from "react-drag-drawer";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import JSONPretty from "react-json-pretty";
-import monikai from 'react-json-pretty/themes/monikai.css';
+import monikai from "react-json-pretty/themes/monikai.css";
 import styles from "./LogModal.module.css";
 
 class LogModal extends Component {

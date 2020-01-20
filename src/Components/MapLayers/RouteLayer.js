@@ -16,9 +16,7 @@ class RouteLayer extends Component {
       <React.Fragment>
         {routeCoords && routeCoords.length > 0
           ? routeCoords
-              .filter(
-                c => c.travelMode === TravelMode.Train
-              )
+              .filter(c => c.travelMode === TravelMode.Train)
               .map((c, index) => (
                 <Layer
                   key={index}
@@ -38,7 +36,11 @@ class RouteLayer extends Component {
           : null}
         {routeCoords && routeCoords.length > 0
           ? routeCoords
-              .filter(c => c.travelMode === TravelMode.Walking || (c.travelMode === TravelMode.Profile && profile === "walking"))
+              .filter(
+                c =>
+                  c.travelMode === TravelMode.Walking ||
+                  (c.travelMode === TravelMode.Profile && profile === "walking")
+              )
               .map((c, index) => (
                 <Layer
                   key={index}
@@ -56,9 +58,11 @@ class RouteLayer extends Component {
                 </Layer>
               ))
           : null}
-          {routeCoords && routeCoords.length > 0
+        {routeCoords && routeCoords.length > 0
           ? routeCoords
-              .filter(c => c.travelMode === TravelMode.Profile && profile === "car")
+              .filter(
+                c => c.travelMode === TravelMode.Profile && profile === "car"
+              )
               .map((c, index) => (
                 <Layer
                   key={index}
@@ -76,7 +80,7 @@ class RouteLayer extends Component {
                 </Layer>
               ))
           : null}
-          {routeCoords && routeCoords.length > 0
+        {routeCoords && routeCoords.length > 0
           ? routeCoords
               .filter(c => c.travelMode === TravelMode.Bus)
               .map((c, index) => (

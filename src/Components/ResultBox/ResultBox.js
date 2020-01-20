@@ -62,16 +62,16 @@ class ResultBox extends Component {
                   className={`${styles.legBox} ${
                     leg.travelMode === TravelMode.Walking ||
                     (leg.travelMode === TravelMode.Profile &&
-                      profile === TravelMode.Walking) ? (
-                      styles.borderWalking
-                    ) : leg.travelMode === TravelMode.Train ? (
-                      styles.borderTrain
-                    ) : leg.travelMode === TravelMode.Profile &&
-                      profile === "car" ? (
-                      styles.borderCar
-                    ) : leg.travelMode === TravelMode.Bus ? (
-                      styles.borderBus
-                    ) : ""
+                      profile === TravelMode.Walking)
+                      ? styles.borderWalking
+                      : leg.travelMode === TravelMode.Train
+                      ? styles.borderTrain
+                      : leg.travelMode === TravelMode.Profile &&
+                        profile === "car"
+                      ? styles.borderCar
+                      : leg.travelMode === TravelMode.Bus
+                      ? styles.borderBus
+                      : ""
                   }`}
                   onClick={() => {
                     setFitBounds([

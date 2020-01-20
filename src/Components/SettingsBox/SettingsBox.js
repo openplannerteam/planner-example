@@ -19,7 +19,12 @@ class SettingsBox extends Component {
   }
 
   render() {
-    const { publicTransport, switchPublicTransport, triangleDemo, switchTriangleDemo } = this.props;
+    const {
+      publicTransport,
+      switchPublicTransport,
+      triangleDemo,
+      switchTriangleDemo
+    } = this.props;
     return (
       <Card className={styles.topleft}>
         <CardContent>

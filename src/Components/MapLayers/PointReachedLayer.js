@@ -23,7 +23,10 @@ class PointReacherLayer extends Component {
             {pointReached
               .filter((p, index) => index % 10 === 0)
               .map((p, index) => (
-                <Feature key={index} coordinates={[p.longitude, p.latitude]}></Feature>
+                <Feature
+                  key={index}
+                  coordinates={[p.longitude, p.latitude]}
+                ></Feature>
               ))}
           </Layer>
         ) : null}

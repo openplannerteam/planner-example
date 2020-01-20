@@ -1,5 +1,6 @@
 import { Feature, Layer } from "react-mapbox-gl";
 import React, { Component } from "react";
+
 class PointMarkerLayer extends Component {
   constructor(props) {
     super(props);
