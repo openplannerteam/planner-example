@@ -12,7 +12,7 @@ class LogButton extends Component {
   }
 
   render() {
-    const { openLogs, show } = this.props;
+    const { openLogs, show = true } = this.props;
     return (
       <React.Fragment>
         {show ? (

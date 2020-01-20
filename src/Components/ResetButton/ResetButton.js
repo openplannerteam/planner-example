@@ -12,7 +12,7 @@ class ResetButton extends Component {
   }
 
   render() {
-    const { resetRoute, show } = this.props;
+    const { resetRoute, show = true } = this.props;
     return (
       <React.Fragment>
         {show ? (

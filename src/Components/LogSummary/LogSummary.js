@@ -10,7 +10,7 @@ class LogSummary extends Component {
   }
 
   render() {
-    const { show, scannedConnections, timeElapsed } = this.props;
+    const { show = true, scannedConnections, timeElapsed } = this.props;
     return (
       <React.Fragment>
         {show ? (
