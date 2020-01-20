@@ -1,4 +1,4 @@
-import { Card, CardContent, CircularProgress, Grid } from "@material-ui/core";
+import { Card, CardContent, Grid } from "@material-ui/core";
 import React, { Component } from "react";
 
 import DirectionsBusIcon from "@material-ui/icons/DirectionsBus";
@@ -29,14 +29,10 @@ class ResultBox extends Component {
   };
 
   render() {
-    const { route, calculating, finished, setFitBounds, profile } = this.props;
+    const { route, finished, setFitBounds, profile } = this.props;
     return (
       <Card className={styles.bottomleft}>
-        {calculating ? (
-          <CardContent>
-            <CircularProgress></CircularProgress>
-          </CardContent>
-        ) : route ? (
+        {route ? (
           <CardContent>
             <h5>
               Total duration :{" "}

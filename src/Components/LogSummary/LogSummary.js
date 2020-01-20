@@ -15,7 +15,7 @@ class LogSummary extends Component {
       <React.Fragment>
         {show ? (
           <div className={styles.logSummary}>
-            <p>Total scanned connections : {scannedConnections}</p>
+            <p>Number of requests : {scannedConnections}</p>
             <p>Elapsed Time : {timeElapsed}s</p>
           </div>
         ) : null}

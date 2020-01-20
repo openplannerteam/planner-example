@@ -335,7 +335,6 @@ class PlannerMap extends Component {
     return (
       <Box boxShadow={2}>
         <ResultBox
-          calculating={calculating}
           route={route}
           finished={finished}
           setFitBounds={this.setFitBounds}
