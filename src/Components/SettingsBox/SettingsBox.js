@@ -23,7 +23,8 @@ class SettingsBox extends Component {
       publicTransport,
       switchPublicTransport,
       triangleDemo,
-      switchTriangleDemo
+      switchTriangleDemo,
+      disabled
     } = this.props;
     return (
       <Card className={styles.topleft}>
@@ -37,6 +38,7 @@ class SettingsBox extends Component {
                   value="publicTransport"
                   onChange={switchPublicTransport}
                   color="primary"
+                  disabled={disabled}
                 />
               }
               label="Use Public Transport"
@@ -49,6 +51,7 @@ class SettingsBox extends Component {
                     onChange={switchTriangleDemo}
                     value="gilad"
                     color="primary"
+                    disabled={disabled}
                   />
                 }
                 label="Triangle demo planner"

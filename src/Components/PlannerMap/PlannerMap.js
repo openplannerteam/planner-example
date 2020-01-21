@@ -98,8 +98,6 @@ class PlannerMap extends Component {
 
   resetRoute = complete => {
     this.setState({
-      center: [4.5118, 50.6282],
-      zoom: [8],
       finished: false,
       route: null,
       routeCoords: [],
@@ -114,7 +112,9 @@ class PlannerMap extends Component {
     if (complete) {
       this.setState({
         start: null,
-        destination: null
+        destination: null,
+        center: [4.5118, 50.6282],
+        zoom: [8]
       });
     }
   };
@@ -214,22 +214,15 @@ class PlannerMap extends Component {
               travelMode: leg.travelMode
             });
           });
-          if (path.legs[0].steps.length > 0) {
-            const startLocation = path.legs[0].steps[0].startLocation;
-            const legsCount = path.legs.length - 1;
-            const lastLegStepsCount = path.legs[legsCount].steps.length - 1;
-            const endLocation =
-              path.legs[legsCount].steps[lastLegStepsCount].stopLocation;
-            this.setState({
-              route: completePath,
-              routeCoords,
-              fitBounds: [
-                [startLocation.longitude, startLocation.latitude],
-                [endLocation.longitude, endLocation.latitude]
-              ],
-              routeStations
-            });
-          }
+          this.setState({
+            route: completePath,
+            routeCoords,
+            fitBounds: [
+              [start.lng, start.lat],
+              [destination.lng, destination.lat]
+            ],
+            routeStations
+          });
           waiting = false;
           if (!this.state.calculating) {
             this.setState({ finished: true });
@@ -295,18 +288,28 @@ class PlannerMap extends Component {
   };
 
   switchPublicTransport = () => {
-    this.setState({
-      publicTransport: !this.state.publicTransport,
-      profile: this.state.profile === "car" ? TravelMode.Walking : "car"
-    });
-    this.resetRoute(true);
+    this.setState(
+      {
+        publicTransport: !this.state.publicTransport,
+        profile: this.state.profile === "car" ? TravelMode.Walking : "car"
+      },
+      () => {
+        this.resetRoute(false);
+        this.calculateRoute();
+      }
+    );
   };
 
   switchTriangleDemo = () => {
-    this.setState({
-      triangleDemo: !this.state.triangleDemo
-    });
-    this.resetRoute(true);
+    this.setState(
+      {
+        triangleDemo: !this.state.triangleDemo
+      },
+      () => {
+        this.resetRoute(false);
+        this.calculateRoute();
+      }
+    );
   };
 
   render() {
@@ -362,6 +365,7 @@ class PlannerMap extends Component {
           switchPublicTransport={this.switchPublicTransport}
           triangleDemo={triangleDemo}
           switchTriangleDemo={this.switchTriangleDemo}
+          disabled={calculating}
         ></SettingsBox>
         <ResetButton show={finished} resetRoute={this.resetRoute}></ResetButton>
         <Map
