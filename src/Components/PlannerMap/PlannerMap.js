@@ -378,6 +378,7 @@ class PlannerMap extends Component {
           finished={finished}
           setFitBounds={this.setFitBounds}
           profile={profile}
+          timeElapsed={timeElapsed}
         ></ResultBox>
         <LogButton
           openLogs={this.openLogModal}
@@ -386,7 +387,6 @@ class PlannerMap extends Component {
         <LogSummary
           show={calculating || finished}
           scannedConnections={scannedConnections}
-          timeElapsed={timeElapsed}
         ></LogSummary>
         <LogModal
           open={isLogModalOpen}

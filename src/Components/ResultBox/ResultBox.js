@@ -1,4 +1,4 @@
-import { Card, CardContent, Grid } from "@material-ui/core";
+import { Card, CardContent, Grid, Typography } from "@material-ui/core";
 import React, { Component } from "react";
 
 import DirectionsBusIcon from "@material-ui/icons/DirectionsBus";
@@ -29,12 +29,12 @@ class ResultBox extends Component {
   };
 
   render() {
-    const { route, finished, setFitBounds, profile } = this.props;
+    const { route, finished, setFitBounds, profile, timeElapsed } = this.props;
     return (
       <Card className={styles.bottomleft}>
         {route ? (
           <CardContent>
-            <h5>
+            <Typography variant="h6">
               Total duration :{" "}
               {this.msToTime(
                 route.legs.reduce(
@@ -43,7 +43,10 @@ class ResultBox extends Component {
                   0
                 )
               )}
-            </h5>
+            </Typography>
+            <Typography variant="caption">
+              Route calculated in {timeElapsed}s
+            </Typography>
             {route.legs.map((leg, index) => {
               const firstStep = leg.steps[0];
               const lastStep = leg.steps[leg.steps.length - 1];

@@ -10,13 +10,12 @@ class LogSummary extends Component {
   }
 
   render() {
-    const { show = true, scannedConnections, timeElapsed } = this.props;
+    const { show = true, scannedConnections } = this.props;
     return (
       <React.Fragment>
         {show ? (
           <div className={styles.logSummary}>
             <p>Number of requests : {scannedConnections}</p>
-            <p>Elapsed Time : {timeElapsed}s</p>
           </div>
         ) : null}
       </React.Fragment>
