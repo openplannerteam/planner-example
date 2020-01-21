@@ -183,8 +183,44 @@ class PlannerMap extends Component {
           console.log(completePath);
           let routeCoords = [];
           let routeStations = [];
+          let westest =
+            start.lng < destination.lng ? start.lng : destination.lng;
+          let eastest =
+            start.lng > destination.lng ? start.lng : destination.lng;
+          let northest =
+            start.lat > destination.lat ? start.lat : destination.lat;
+          let southest =
+            start.lat < destination.lat ? start.lat : destination.lat;
           completePath.legs.forEach((leg, index) => {
             let coords = [];
+            const lngMin = Math.min(
+              ...leg.steps.map(s => s.startLocation.longitude),
+              ...leg.steps.map(s => s.stopLocation.longitude)
+            );
+            const lngMax = Math.max(
+              ...leg.steps.map(s => s.startLocation.longitude),
+              ...leg.steps.map(s => s.stopLocation.longitude)
+            );
+            const latMin = Math.min(
+              ...leg.steps.map(s => s.startLocation.latitude),
+              ...leg.steps.map(s => s.stopLocation.latitude)
+            );
+            const latMax = Math.max(
+              ...leg.steps.map(s => s.startLocation.latitude),
+              ...leg.steps.map(s => s.stopLocation.latitude)
+            );
+            if (lngMin < westest) {
+              westest = lngMin;
+            }
+            if (lngMax > eastest) {
+              eastest = lngMax;
+            }
+            if (latMin < southest) {
+              southest = latMin;
+            }
+            if (latMax > northest) {
+              northest = latMax;
+            }
             leg.steps.forEach(step => {
               const startCoords = [
                 step.startLocation.longitude,
@@ -218,8 +254,8 @@ class PlannerMap extends Component {
             route: completePath,
             routeCoords,
             fitBounds: [
-              [start.lng, start.lat],
-              [destination.lng, destination.lat]
+              [westest, northest],
+              [eastest, southest]
             ],
             routeStations
           });
