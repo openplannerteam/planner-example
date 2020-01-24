@@ -45,7 +45,7 @@ class ResultBox extends Component {
               )}
             </Typography>
             <Typography variant="caption">
-              Route calculated in {timeElapsed}s
+              Route calculated in {timeElapsed/1000}s
             </Typography>
             {route.legs.map((leg, index) => {
               const firstStep = leg.steps[0];

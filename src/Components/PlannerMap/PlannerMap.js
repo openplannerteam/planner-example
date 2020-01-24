@@ -120,45 +120,22 @@ class PlannerMap extends Component {
   };
 
   startTimer = () => {
-    if (!this.timer) {
-      this.timer = setInterval(this.updateTime, 1000);
-    }
+    this.timer = new Date();
   };
 
   stopTimer = () => {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-  };
-
-  resetTimer = () => {
-    if (this.timer) {
-      this.setState({
-        timeElapsed: 0
-      });
-      this.timer = null;
-    }
-  };
-
-  updateTime = () => {
-    this.setState({
-      timeElapsed: this.state.timeElapsed + 1
-    });
+    const millis = new Date() - this.timer;
+    this.setState({timeElapsed:millis});
   };
 
   calculateRoute = () => {
     const { start, destination, publicTransport, triangleDemo } = this.state;
     if (start && destination) {
       this.resetRoute();
-      this.resetTimer();
       this.startTimer();
       this.setState({
         calculating: true
       });
-      this.setFitBounds([
-        [start.lng, start.lat],
-        [destination.lng, destination.lat]
-      ]);
       const planner = publicTransport
         ? triangleDemo
           ? this.triangleDemoPlanner
