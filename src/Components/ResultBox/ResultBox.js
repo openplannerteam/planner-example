@@ -33,7 +33,7 @@ class ResultBox extends Component {
     return (
       <Card className={styles.bottomleft}>
         {route ? (
-          <CardContent>
+          <CardContent className={styles.resultBox}>
             <Typography variant="h6">
               Total duration :{" "}
               {this.msToTime(
@@ -73,15 +73,47 @@ class ResultBox extends Component {
                       : ""
                   }`}
                   onClick={() => {
+                    const start = firstStep.startLocation;
+                    const end = lastStep.stopLocation;
+                    let westest = start.longitude < end.longitude ? start.longitude : end.longitude;
+                    let eastest = start.longitude > end.longitude ? start.longitude : end.longitude;
+                    let northest = start.latitude > end.latitude ? start.latitude : end.latitude;
+                    let southest = start.latitude < end.latitude ? start.latitude : end.latitude;
+                    const lngMin = Math.min(
+                      ...leg.steps.map(s => s.startLocation.longitude),
+                      ...leg.steps.map(s => s.stopLocation.longitude)
+                    );
+                    const lngMax = Math.max(
+                      ...leg.steps.map(s => s.startLocation.longitude),
+                      ...leg.steps.map(s => s.stopLocation.longitude)
+                    );
+                    const latMin = Math.min(
+                      ...leg.steps.map(s => s.startLocation.latitude),
+                      ...leg.steps.map(s => s.stopLocation.latitude)
+                    );
+                    const latMax = Math.max(
+                      ...leg.steps.map(s => s.startLocation.latitude),
+                      ...leg.steps.map(s => s.stopLocation.latitude)
+                    );
+                    if (lngMin < westest) {
+                      westest = lngMin;
+                    }
+                    if (lngMax > eastest) {
+                      eastest = lngMax;
+                    }
+                    if (latMin < southest) {
+                      southest = latMin;
+                    }
+                    if (latMax > northest) {
+                      northest = latMax;
+                    }
+                    console.log([
+                      [westest, northest],
+                      [eastest, southest]
+                    ]);
                     setFitBounds([
-                      [
-                        firstStep.startLocation.longitude,
-                        firstStep.startLocation.latitude
-                      ],
-                      [
-                        lastStep.stopLocation.longitude,
-                        lastStep.stopLocation.latitude
-                      ]
+                      [westest, northest],
+                      [eastest, southest]
                     ]);
                   }}
                 >

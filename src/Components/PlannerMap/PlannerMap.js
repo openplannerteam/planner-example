@@ -155,6 +155,10 @@ class PlannerMap extends Component {
       this.setState({
         calculating: true
       });
+      this.setFitBounds([
+        [start.lng, start.lat],
+        [destination.lng, destination.lat]
+      ]);
       const planner = publicTransport
         ? triangleDemo
           ? this.triangleDemoPlanner

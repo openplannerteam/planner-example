@@ -5,6 +5,11 @@
   z-index: 1;
 }
 
+.resultBox{
+  max-height: 70vh;
+  overflow: scroll;
+}
+
 .legBox {
   border-left: 3px solid;
   cursor: pointer;
