@@ -8,10 +8,6 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "@turf/area": "^6.0.1",
-    "@turf/buffer": "^5.1.5",
-    "@turf/collect": "^6.0.1",
-    "@turf/turf": "^5.1.6",
     "hull.js": "^1.0.0",
     "mapbox-gl": "^1.6.1",
     "plannerjs": "^0.2.1",
@@ -21,9 +17,7 @@
     "react-json-pretty": "^2.2.0",
     "react-mapbox-gl": "^4.8.1",
     "react-reveal": "^1.2.2",
-    "react-scripts": "3.3.0",
-    "react-typist": "^2.0.5",
-    "serialize-javascript": "^2.1.2"
+    "react-scripts": "3.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
