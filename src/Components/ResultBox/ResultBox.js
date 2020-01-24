@@ -54,6 +54,40 @@ class ResultBox extends Component {
                 (c, d) => c + d.duration.average,
                 0
               );
+              const start = firstStep.startLocation;
+              const end = lastStep.stopLocation;
+              let westest = start.longitude < end.longitude ? start.longitude : end.longitude;
+              let eastest = start.longitude > end.longitude ? start.longitude : end.longitude;
+              let northest = start.latitude > end.latitude ? start.latitude : end.latitude;
+              let southest = start.latitude < end.latitude ? start.latitude : end.latitude;
+              const lngMin = Math.min(
+                ...leg.steps.map(s => s.startLocation.longitude),
+                ...leg.steps.map(s => s.stopLocation.longitude)
+              );
+              const lngMax = Math.max(
+                ...leg.steps.map(s => s.startLocation.longitude),
+                ...leg.steps.map(s => s.stopLocation.longitude)
+              );
+              const latMin = Math.min(
+                ...leg.steps.map(s => s.startLocation.latitude),
+                ...leg.steps.map(s => s.stopLocation.latitude)
+              );
+              const latMax = Math.max(
+                ...leg.steps.map(s => s.startLocation.latitude),
+                ...leg.steps.map(s => s.stopLocation.latitude)
+              );
+              if (lngMin < westest) {
+                westest = lngMin;
+              }
+              if (lngMax > eastest) {
+                eastest = lngMax;
+              }
+              if (latMin < southest) {
+                southest = latMin;
+              }
+              if (latMax > northest) {
+                northest = latMax;
+              }
               return (
                 <Grid
                   container
@@ -73,44 +107,6 @@ class ResultBox extends Component {
                       : ""
                   }`}
                   onClick={() => {
-                    const start = firstStep.startLocation;
-                    const end = lastStep.stopLocation;
-                    let westest = start.longitude < end.longitude ? start.longitude : end.longitude;
-                    let eastest = start.longitude > end.longitude ? start.longitude : end.longitude;
-                    let northest = start.latitude > end.latitude ? start.latitude : end.latitude;
-                    let southest = start.latitude < end.latitude ? start.latitude : end.latitude;
-                    const lngMin = Math.min(
-                      ...leg.steps.map(s => s.startLocation.longitude),
-                      ...leg.steps.map(s => s.stopLocation.longitude)
-                    );
-                    const lngMax = Math.max(
-                      ...leg.steps.map(s => s.startLocation.longitude),
-                      ...leg.steps.map(s => s.stopLocation.longitude)
-                    );
-                    const latMin = Math.min(
-                      ...leg.steps.map(s => s.startLocation.latitude),
-                      ...leg.steps.map(s => s.stopLocation.latitude)
-                    );
-                    const latMax = Math.max(
-                      ...leg.steps.map(s => s.startLocation.latitude),
-                      ...leg.steps.map(s => s.stopLocation.latitude)
-                    );
-                    if (lngMin < westest) {
-                      westest = lngMin;
-                    }
-                    if (lngMax > eastest) {
-                      eastest = lngMax;
-                    }
-                    if (latMin < southest) {
-                      southest = latMin;
-                    }
-                    if (latMax > northest) {
-                      northest = latMax;
-                    }
-                    console.log([
-                      [westest, northest],
-                      [eastest, southest]
-                    ]);
                     setFitBounds([
                       [westest, northest],
                       [eastest, southest]
