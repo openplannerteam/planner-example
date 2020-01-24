@@ -125,7 +125,7 @@ class PlannerMap extends Component {
 
   stopTimer = () => {
     const millis = new Date() - this.timer;
-    this.setState({timeElapsed:millis});
+    this.setState({ timeElapsed: millis });
   };
 
   calculateRoute = () => {

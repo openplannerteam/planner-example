@@ -12,6 +12,7 @@
     "@turf/buffer": "^5.1.5",
     "@turf/collect": "^6.0.1",
     "@turf/turf": "^5.1.6",
+    "hull.js": "^1.0.0",
     "mapbox-gl": "^1.6.1",
     "plannerjs": "^0.2.1",
     "react": "^16.12.0",
