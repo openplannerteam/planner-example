@@ -28,9 +28,10 @@ class LogModal extends Component {
               </Grid>
             </Grid>
             <h1>Execution logs</h1>
-            <h5>Executed query</h5>
+            <h5>Executed query :</h5>
             <JSONPretty json={query} theme={monikai}></JSONPretty>
             <br />
+            <h5>Data fetched :</h5>
             {logs.map((l, index) => (
               <p key={index}>
                 <span className={styles.yellow}>[GET]</span>{" "}

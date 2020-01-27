@@ -6,6 +6,7 @@ import DirectionsWalkIcon from "@material-ui/icons/DirectionsWalk";
 import DriveEtaIcon from "@material-ui/icons/DriveEta";
 import TrainIcon from "@material-ui/icons/Train";
 import { TravelMode } from "plannerjs";
+import hull from "hull.js";
 import styles from "./ResultBox.module.css";
 
 class ResultBox extends Component {
@@ -31,9 +32,9 @@ class ResultBox extends Component {
   render() {
     const { route, finished, setFitBounds, profile, timeElapsed } = this.props;
     return (
-      <Card className={styles.bottomleft}>
+      <Card className={styles.resultBox}>
         {route ? (
-          <CardContent className={styles.resultBox}>
+          <CardContent className={styles.resultContent}>
             <Typography variant="h6">
               Total duration :{" "}
               {this.msToTime(
@@ -45,7 +46,7 @@ class ResultBox extends Component {
               )}
             </Typography>
             <Typography variant="caption">
-              Route calculated in {timeElapsed/1000}s
+              Route calculated in {timeElapsed / 1000}s
             </Typography>
             {route.legs.map((leg, index) => {
               const firstStep = leg.steps[0];
@@ -54,39 +55,32 @@ class ResultBox extends Component {
                 (c, d) => c + d.duration.average,
                 0
               );
-              const start = firstStep.startLocation;
-              const end = lastStep.stopLocation;
-              let westest = start.longitude < end.longitude ? start.longitude : end.longitude;
-              let eastest = start.longitude > end.longitude ? start.longitude : end.longitude;
-              let northest = start.latitude > end.latitude ? start.latitude : end.latitude;
-              let southest = start.latitude < end.latitude ? start.latitude : end.latitude;
-              const lngMin = Math.min(
-                ...leg.steps.map(s => s.startLocation.longitude),
-                ...leg.steps.map(s => s.stopLocation.longitude)
-              );
-              const lngMax = Math.max(
-                ...leg.steps.map(s => s.startLocation.longitude),
-                ...leg.steps.map(s => s.stopLocation.longitude)
-              );
-              const latMin = Math.min(
-                ...leg.steps.map(s => s.startLocation.latitude),
-                ...leg.steps.map(s => s.stopLocation.latitude)
-              );
-              const latMax = Math.max(
-                ...leg.steps.map(s => s.startLocation.latitude),
-                ...leg.steps.map(s => s.stopLocation.latitude)
-              );
-              if (lngMin < westest) {
-                westest = lngMin;
-              }
-              if (lngMax > eastest) {
-                eastest = lngMax;
-              }
-              if (latMin < southest) {
-                southest = latMin;
-              }
-              if (latMax > northest) {
-                northest = latMax;
+              let zoomBoundaries = [
+                [
+                  firstStep.startLocation.longitude,
+                  firstStep.startLocation.latitude
+                ],
+                [
+                  lastStep.stopLocation.longitude,
+                  lastStep.stopLocation.latitude
+                ]
+              ];
+              if (leg.steps.length > 1) {
+                const convexHull = hull(
+                  leg.steps
+                    .map(s => [
+                      [s.startLocation.longitude, s.startLocation.latitude],
+                      [s.stopLocation.longitude, s.stopLocation.latitude]
+                    ])
+                    .flat()
+                );
+                const longitudes = convexHull.map(c => c[0]);
+                const latitudes = convexHull.map(c => c[1]);
+                //[[westest, northest],[eastest, southest]]
+                zoomBoundaries = [
+                  [Math.min(...longitudes), Math.max(...latitudes)],
+                  [Math.max(...longitudes), Math.min(...latitudes)]
+                ];
               }
               return (
                 <Grid
@@ -107,10 +101,7 @@ class ResultBox extends Component {
                       : ""
                   }`}
                   onClick={() => {
-                    setFitBounds([
-                      [westest, northest],
-                      [eastest, southest]
-                    ]);
+                    setFitBounds(zoomBoundaries);
                   }}
                 >
                   <Grid item xs={1}>
@@ -146,7 +137,7 @@ class ResultBox extends Component {
                           ? lastStep.stopLocation.name
                           : lastStep.stopLocation.latitude.toFixed(4) +
                             ", " +
-                            firstStep.stopLocation.longitude.toFixed(4)}
+                            lastStep.stopLocation.longitude.toFixed(4)}
                       </li>
                     </ul>
                   </Grid>

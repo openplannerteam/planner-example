@@ -21,6 +21,7 @@ import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
 import SettingsBox from "../SettingsBox/SettingsBox";
 import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
+import hull from "hull.js";
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -141,7 +142,7 @@ class PlannerMap extends Component {
           ? this.triangleDemoPlanner
           : this.trainPlanner
         : this.carPlanner;
-      let waiting = false;
+      let blocked = false;
       planner
         .query({
           from: { longitude: start.lng, latitude: start.lat },
@@ -159,49 +160,13 @@ class PlannerMap extends Component {
         .on("data", async path => {
           console.log("this is a path");
           console.log(path);
-          waiting = true;
+          blocked = true;
           const completePath = await planner.completePath(path);
           console.log(completePath);
           let routeCoords = [];
           let routeStations = [];
-          let westest =
-            start.lng < destination.lng ? start.lng : destination.lng;
-          let eastest =
-            start.lng > destination.lng ? start.lng : destination.lng;
-          let northest =
-            start.lat > destination.lat ? start.lat : destination.lat;
-          let southest =
-            start.lat < destination.lat ? start.lat : destination.lat;
           completePath.legs.forEach((leg, index) => {
             let coords = [];
-            const lngMin = Math.min(
-              ...leg.steps.map(s => s.startLocation.longitude),
-              ...leg.steps.map(s => s.stopLocation.longitude)
-            );
-            const lngMax = Math.max(
-              ...leg.steps.map(s => s.startLocation.longitude),
-              ...leg.steps.map(s => s.stopLocation.longitude)
-            );
-            const latMin = Math.min(
-              ...leg.steps.map(s => s.startLocation.latitude),
-              ...leg.steps.map(s => s.stopLocation.latitude)
-            );
-            const latMax = Math.max(
-              ...leg.steps.map(s => s.startLocation.latitude),
-              ...leg.steps.map(s => s.stopLocation.latitude)
-            );
-            if (lngMin < westest) {
-              westest = lngMin;
-            }
-            if (lngMax > eastest) {
-              eastest = lngMax;
-            }
-            if (latMin < southest) {
-              southest = latMin;
-            }
-            if (latMax > northest) {
-              northest = latMax;
-            }
             leg.steps.forEach(step => {
               const startCoords = [
                 step.startLocation.longitude,
@@ -231,16 +196,24 @@ class PlannerMap extends Component {
               travelMode: leg.travelMode
             });
           });
+          const convexHull = hull(
+            routeCoords.map(rc => rc.coords.map(c => c)).flat()
+          );
+          const longitudes = convexHull.map(c => c[0]);
+          const latitudes = convexHull.map(c => c[1]);
+
+          //[[westest, northest],[eastest, southest]]
+          const zoomBoundaries = [
+            [Math.min(...longitudes), Math.max(...latitudes)],
+            [Math.max(...longitudes), Math.min(...latitudes)]
+          ];
           this.setState({
             route: completePath,
             routeCoords,
-            fitBounds: [
-              [westest, northest],
-              [eastest, southest]
-            ],
+            fitBounds: zoomBoundaries,
             routeStations
           });
-          waiting = false;
+          blocked = false;
           if (!this.state.calculating) {
             this.setState({ finished: true });
           }
@@ -251,7 +224,7 @@ class PlannerMap extends Component {
             calculating: false,
             isLogModalOpen: false
           });
-          if (!waiting) {
+          if (!blocked) {
             this.setState({ finished: true });
           }
           this.stopTimer();

@@ -27,7 +27,7 @@ class StationMarkerLayer extends Component {
         : null;
     return (
       <React.Fragment>
-        {routeStations.length > 0 ? (
+        {routeStations && routeStations.length > 0 ? (
           <React.Fragment>
             <Layer type="symbol" layout={{ "icon-image": "rail-15" }}>
               {stationsMarkers}

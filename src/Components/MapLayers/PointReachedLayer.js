@@ -34,7 +34,7 @@ class PointReacherLayer extends Component {
               }}
             ></GeoJSONLayer>
           </React.Fragment>
-        ) : //
+        ) :
         null}
       </React.Fragment>
     );
