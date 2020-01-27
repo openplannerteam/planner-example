@@ -7,7 +7,6 @@ import {
   TriangleDemoPlanner,
   Units
 } from "plannerjs";
-import React, { Component } from "react";
 
 import { Box } from "@material-ui/core";
 import LogButton from "../LogButton/LogButton";
@@ -15,7 +14,9 @@ import LogModal from "../LogModal/LogModal";
 import LogSummary from "../LogSummary/LogSummary";
 import PointMarkerLayer from "../MapLayers/PointMarkerLayer";
 import PointReacherLayer from "../MapLayers/PointReachedLayer";
+import React from "react";
 import ReactMapboxGl from "react-mapbox-gl";
+import ReactQueryParams from "react-query-params";
 import ResetButton from "../ResetButton/ResetButton";
 import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
@@ -28,7 +29,7 @@ const Map = ReactMapboxGl({
     "pk.eyJ1Ijoic3VzaGlsZ2hhbWJpciIsImEiOiJjazUyZmNvcWExM2ZrM2VwN2I5amVkYnF5In0.76xcCe3feYPHsDo8eXAguw"
 });
 
-class PlannerMap extends Component {
+class PlannerMap extends ReactQueryParams {
   constructor(props) {
     super(props);
 
@@ -90,6 +91,19 @@ class PlannerMap extends Component {
         }
       });
   }
+
+  componentDidMount = () => {
+    const { start, destination } = this.queryParams;
+    this.setState(
+      {
+        start,
+        destination
+      },
+      () => {
+        this.calculateRoute();
+      }
+    );
+  };
 
   setFitBounds = fitBounds => {
     this.setState({
@@ -239,8 +253,10 @@ class PlannerMap extends Component {
   onMapClick = (map, e) => {
     const coord = e.lngLat;
     if (!this.state.start) {
+      this.setQueryParams({ start: coord });
       this.setState({ start: coord });
     } else if (!this.state.destination) {
+      this.setQueryParams({ destination: coord });
       this.setState({ destination: coord }, () => {
         this.calculateRoute();
       });
@@ -248,15 +264,17 @@ class PlannerMap extends Component {
   };
 
   startDragEnd = e => {
-    const newCoord = e.lngLat;
-    this.setState({ start: newCoord }, () => {
+    const newState = { start: e.lngLat };
+    this.setQueryParams(newState);
+    this.setState(newState, () => {
       this.calculateRoute();
     });
   };
 
   destinationDragEnd = e => {
-    const newCoord = e.lngLat;
-    this.setState({ destination: newCoord }, () => {
+    const newState = { destination: e.lngLat };
+    this.setQueryParams(newState);
+    this.setState(newState, () => {
       this.calculateRoute();
     });
   };
