@@ -1,10 +1,10 @@
 import {
   Card,
   CardContent,
-  Checkbox,
-  FormControlLabel,
   FormGroup,
-  Switch,
+  InputLabel,
+  MenuItem,
+  Select,
   Typography
 } from "@material-ui/core";
 import React, { Component } from "react";
@@ -19,44 +19,30 @@ class SettingsBox extends Component {
   }
 
   render() {
-    const {
-      publicTransport,
-      switchPublicTransport,
-      triangleDemo,
-      switchTriangleDemo,
-      disabled
-    } = this.props;
+    const { planners, selectedPlanner, changePlanner, disabled } = this.props;
     return (
-      <Card className={styles.topleft}>
+      <Card className={styles.settingsBox}>
         <CardContent>
           <Typography variant="h6">Settings</Typography>
+          <br></br>
           <FormGroup>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={publicTransport}
-                  value="publicTransport"
-                  onChange={switchPublicTransport}
-                  color="primary"
-                  disabled={disabled}
-                />
-              }
-              label="Use Public Transport"
-            />
-            {publicTransport ? (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={triangleDemo}
-                    onChange={switchTriangleDemo}
-                    value="gilad"
-                    color="primary"
-                    disabled={disabled}
-                  />
-                }
-                label="Triangle demo planner"
-              />
-            ) : null}
+            <InputLabel>Planner :</InputLabel>
+            <Select
+              value={selectedPlanner.id}
+              onChange={e => {
+                changePlanner(e.target.value);
+              }}
+              fullWidth
+              variant="outlined"
+              margin="dense"
+              disabled={disabled}
+            >
+              {planners.map(p => (
+                <MenuItem key={p.id} value={p.id}>
+                  {p.name}
+                </MenuItem>
+              ))}
+            </Select>
           </FormGroup>
         </CardContent>
       </Card>

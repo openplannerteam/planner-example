@@ -29,7 +29,16 @@ const Map = ReactMapboxGl({
     "pk.eyJ1Ijoic3VzaGlsZ2hhbWJpciIsImEiOiJjazUyZmNvcWExM2ZrM2VwN2I5amVkYnF5In0.76xcCe3feYPHsDo8eXAguw"
 });
 
+const planners = [
+  { id: 1, name: "Basic Train Planner", profile: TravelMode.Walking },
+  { id: 2, name: "Transit Car Planner", profile: "car" },
+  { id: 3, name: "Triangle Demo Planner", profile: TravelMode.Walking }
+];
+
 class PlannerMap extends ReactQueryParams {
+  defaultQueryParams = {
+    planner: 1
+  };
   constructor(props) {
     super(props);
 
@@ -49,9 +58,7 @@ class PlannerMap extends ReactQueryParams {
       routeStations: [],
       stationPopup: null,
       fitBounds: null,
-      publicTransport: true,
-      profile: "walking",
-      triangleDemo: false,
+      planner: planners[0],
       pointReached: [],
       timeElapsed: 0
     };
@@ -93,11 +100,16 @@ class PlannerMap extends ReactQueryParams {
   }
 
   componentDidMount = () => {
-    const { start, destination } = this.queryParams;
+    let { start, destination, planner } = this.queryParams;
+    if (!planner || isNaN(parseInt(planner))) {
+      this.setQueryParams({ planner: 1 });
+      planner = this.queryParams.planner;
+    }
     this.setState(
       {
         start,
-        destination
+        destination,
+        planner: planners.filter(p => p.id === parseInt(planner))[0]
       },
       () => {
         this.calculateRoute();
@@ -144,20 +156,21 @@ class PlannerMap extends ReactQueryParams {
   };
 
   calculateRoute = () => {
-    const { start, destination, publicTransport, triangleDemo } = this.state;
+    const { start, destination, planner } = this.state;
     if (start && destination) {
       this.resetRoute();
       this.startTimer();
       this.setState({
         calculating: true
       });
-      const planner = publicTransport
-        ? triangleDemo
-          ? this.triangleDemoPlanner
-          : this.trainPlanner
-        : this.carPlanner;
+      const plannerToUse =
+        planner.id === 1
+          ? this.trainPlanner
+          : planner.id === 2
+          ? this.carPlanner
+          : this.triangleDemoPlanner;
       let blocked = false;
-      planner
+      plannerToUse
         .query({
           from: { longitude: start.lng, latitude: start.lat },
           to: { longitude: destination.lng, latitude: destination.lat },
@@ -175,11 +188,11 @@ class PlannerMap extends ReactQueryParams {
           console.log("this is a path");
           console.log(path);
           blocked = true;
-          const completePath = await planner.completePath(path);
+          const completePath = await plannerToUse.completePath(path);
           console.log(completePath);
           let routeCoords = [];
           let routeStations = [];
-          completePath.legs.forEach((leg, index) => {
+          completePath.legs.forEach(leg => {
             let coords = [];
             leg.steps.forEach(step => {
               const startCoords = [
@@ -295,29 +308,17 @@ class PlannerMap extends ReactQueryParams {
     this.setState({ stationPopup: null });
   };
 
-  switchPublicTransport = () => {
+  changePlanner = plannerId => {
     this.setState(
       {
-        publicTransport: !this.state.publicTransport,
-        profile: this.state.profile === "car" ? TravelMode.Walking : "car"
+        planner: planners.filter(p => p.id === plannerId)[0]
       },
       () => {
         this.resetRoute(false);
         this.calculateRoute();
       }
     );
-  };
-
-  switchTriangleDemo = () => {
-    this.setState(
-      {
-        triangleDemo: !this.state.triangleDemo
-      },
-      () => {
-        this.resetRoute(false);
-        this.calculateRoute();
-      }
-    );
+    this.setQueryParams({ planner: plannerId });
   };
 
   render() {
@@ -337,9 +338,7 @@ class PlannerMap extends ReactQueryParams {
       routeStations,
       stationPopup,
       fitBounds,
-      publicTransport,
-      profile,
-      triangleDemo,
+      planner,
       pointReached,
       timeElapsed
     } = this.state;
@@ -349,7 +348,7 @@ class PlannerMap extends ReactQueryParams {
           route={route}
           finished={finished}
           setFitBounds={this.setFitBounds}
-          profile={profile}
+          profile={planner.profile}
           timeElapsed={timeElapsed}
         ></ResultBox>
         <LogButton
@@ -369,10 +368,9 @@ class PlannerMap extends ReactQueryParams {
           response={route}
         ></LogModal>
         <SettingsBox
-          publicTransport={publicTransport}
-          switchPublicTransport={this.switchPublicTransport}
-          triangleDemo={triangleDemo}
-          switchTriangleDemo={this.switchTriangleDemo}
+          planners={planners}
+          selectedPlanner={planner}
+          changePlanner={this.changePlanner}
           disabled={calculating}
         ></SettingsBox>
         <ResetButton show={finished} resetRoute={this.resetRoute}></ResetButton>
@@ -398,7 +396,10 @@ class PlannerMap extends ReactQueryParams {
             destinationDragEnd={this.destinationDragEnd}
             calculating={calculating}
           ></PointMarkerLayer>
-          <RouteLayer routeCoords={routeCoords} profile={profile}></RouteLayer>
+          <RouteLayer
+            routeCoords={routeCoords}
+            profile={planner.profile}
+          ></RouteLayer>
           <StationMarkerLayer
             routeStations={routeStations}
             showPopup={this.showPopup}
