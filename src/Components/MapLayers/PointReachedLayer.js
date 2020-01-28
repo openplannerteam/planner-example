@@ -29,7 +29,7 @@ class PointReacherLayer extends Component {
                 }
               }}
               fillPaint={{
-                "fill-color": "#ff0000",
+                "fill-color": "#b3b4b1",
                 "fill-opacity": 0.3
               }}
             ></GeoJSONLayer>
