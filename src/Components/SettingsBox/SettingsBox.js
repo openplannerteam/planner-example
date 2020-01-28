@@ -52,7 +52,7 @@ class SettingsBox extends Component {
               ))}
             </MaterialSelect>
             <Typography variant="caption">
-              Description of the planner to come
+              {selectedPlanner.description ? selectedPlanner.description : "No description available"}
             </Typography>
             <br />
             <InputLabel>Connection Sources :</InputLabel>
