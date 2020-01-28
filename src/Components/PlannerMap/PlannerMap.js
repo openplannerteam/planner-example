@@ -1,10 +1,12 @@
 import {
-  BasicTrainPlanner,
   EventBus,
   EventType,
-  TransitCarPlanner,
+  FlexibleProfileTransitPlanner,
+  FlexibleRoadPlanner,
+  FlexibleTransitPlanner,
+  ReducedCarPlanner,
   TravelMode,
-  TriangleDemoPlanner,
+  TriangleTransitPlanner,
   Units
 } from "plannerjs";
 
@@ -22,22 +24,51 @@ import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
 import SettingsBox from "../SettingsBox/SettingsBox";
 import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
+import connectionSources from "../../Data/connectionSources";
 import hull from "hull.js";
+import stopSources from "../../Data/stopSources";
+
+const planners = [
+  {
+    id: 1,
+    name: "Flexible Profile Transit Planner",
+    profile: TravelMode.Walking,
+    class: FlexibleProfileTransitPlanner
+  },
+  {
+    id: 2,
+    name: "Flexible Road Planner",
+    profile: "car",
+    class: FlexibleRoadPlanner
+  },
+  {
+    id: 3,
+    name: "Flexible Transit Planner",
+    profile: TravelMode.Walking,
+    class: FlexibleTransitPlanner
+  },
+  {
+    id: 4,
+    name: "Reduced Car Planner",
+    profile: "car",
+    class: ReducedCarPlanner
+  },
+  {
+    id: 5,
+    name: "Triangle Transit Planner",
+    profile: TravelMode.Walking,
+    class: TriangleTransitPlanner
+  }
+];
 
 const Map = ReactMapboxGl({
   accessToken:
     "pk.eyJ1Ijoic3VzaGlsZ2hhbWJpciIsImEiOiJjazUyZmNvcWExM2ZrM2VwN2I5amVkYnF5In0.76xcCe3feYPHsDo8eXAguw"
 });
 
-const planners = [
-  { id: 1, name: "Basic Train Planner", profile: TravelMode.Walking },
-  { id: 2, name: "Transit Car Planner", profile: "car" },
-  { id: 3, name: "Triangle Demo Planner", profile: TravelMode.Walking }
-];
-
 class PlannerMap extends ReactQueryParams {
   defaultQueryParams = {
-    planner: 1
+    planner: 3
   };
   constructor(props) {
     super(props);
@@ -62,9 +93,6 @@ class PlannerMap extends ReactQueryParams {
       pointReached: [],
       timeElapsed: 0
     };
-    this.trainPlanner = new BasicTrainPlanner();
-    this.carPlanner = new TransitCarPlanner();
-    this.triangleDemoPlanner = new TriangleDemoPlanner();
     this.timer = null;
     EventBus.on(EventType.InvalidQuery, error => {
       console.log("InvalidQuery", error);
@@ -76,7 +104,8 @@ class PlannerMap extends ReactQueryParams {
         console.log("Query", query);
         this.setState({ query });
       })
-      .on(EventType.LDFetchGet, (url, duration) => {
+      .on(EventType.ResourceFetch, resource => {
+        const { url, duration } = resource;
         console.log(`[GET] ${url} (${duration}ms)`);
         let { logs, scannedConnections } = this.state;
         this.setState({
@@ -87,15 +116,15 @@ class PlannerMap extends ReactQueryParams {
       .on(EventType.Warning, e => {
         console.warn(e);
       })
-      .on(EventType.PointReached, async p => {
-        try {
-          const point = await p;
-          this.setState({
-            pointReached: [...this.state.pointReached, point]
-          });
-        } catch (error) {
-          console.log(error);
-        }
+      .on(EventType.ReachableID, locationId => {
+        new this.state.planner.class()
+          .resolveLocation(locationId)
+          .then(location => {
+            this.setState({
+              pointReached: [...this.state.pointReached, location]
+            });
+          })
+          .catch(error => {});
       });
   }
 
@@ -163,12 +192,11 @@ class PlannerMap extends ReactQueryParams {
       this.setState({
         calculating: true
       });
-      const plannerToUse =
-        planner.id === 1
-          ? this.trainPlanner
-          : planner.id === 2
-          ? this.carPlanner
-          : this.triangleDemoPlanner;
+      const plannerToUse = new planner.class();
+      plannerToUse.addConnectionSource(
+        "https://graph.irail.be/sncb/connections"
+      );
+      plannerToUse.addStopSource("https://irail.be/stations/NMBS");
       let blocked = false;
       plannerToUse
         .query({
@@ -258,7 +286,9 @@ class PlannerMap extends ReactQueryParams {
         })
         .on("error", error => {
           console.error(error);
-          this.setState({ calculating: false });
+          this.setState({ calculating: false }, () => {
+            console.log(this.state);
+          });
         });
     }
   };
@@ -369,6 +399,8 @@ class PlannerMap extends ReactQueryParams {
         ></LogModal>
         <SettingsBox
           planners={planners}
+          connectionSources={connectionSources}
+          stopSources={stopSources}
           selectedPlanner={planner}
           changePlanner={this.changePlanner}
           disabled={calculating}

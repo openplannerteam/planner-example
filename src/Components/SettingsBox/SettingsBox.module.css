@@ -3,5 +3,9 @@
   top: 8px;
   left: 16px;
   z-index: 1;
-  width: 23vw;
+  width: 35vw;
+}
+
+.selects{
+  z-index: 10000;
 }

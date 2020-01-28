@@ -3,22 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.8.2",
+    "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.5.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "hull.js": "^1.0.0",
     "mapbox-gl": "^1.6.1",
-    "plannerjs": "^0.2.1",
+    "plannerjs": "^0.3.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-drag-drawer": "^3.3.3",
     "react-json-pretty": "^2.2.0",
-    "react-mapbox-gl": "^4.8.1",
+    "react-mapbox-gl": "^4.8.2",
     "react-query-params": "^1.0.9",
     "react-reveal": "^1.2.2",
-    "react-scripts": "3.3.0"
+    "react-scripts": "3.3.0",
+    "react-select": "^3.0.8"
   },
   "scripts": {
     "start": "react-scripts start",
