@@ -95,6 +95,8 @@ class PlannerMap extends ReactQueryParams {
       stationPopup: null,
       fitBounds: null,
       planner: planners[0],
+      selectedConnectionSources: [connectionSources[0]],
+      selectedStopSources: [stopSources[0]],
       pointReached: [],
       timeElapsed: 0
     };
@@ -177,6 +179,7 @@ class PlannerMap extends ReactQueryParams {
         center: [4.5118, 50.6282],
         zoom: [8]
       });
+      this.setQueryParams({ start: null, destination: null });
     }
   };
 
@@ -189,6 +192,22 @@ class PlannerMap extends ReactQueryParams {
     this.setState({ timeElapsed: millis });
   };
 
+  addConnectionSourcesToPlanner = planner => {
+    const { selectedConnectionSources } = this.state;
+    selectedConnectionSources.forEach(s => {
+      planner.addConnectionSource(s.label);
+      console.log("added : ", s.label);
+    });
+  };
+
+  addStopSourcesToPlanner = planner => {
+    const { selectedStopSources } = this.state;
+    selectedStopSources.forEach(s => {
+      planner.addStopSource(s.label);
+      console.log("added : ", s.label);
+    });
+  };
+
   calculateRoute = () => {
     const { start, destination, planner } = this.state;
     if (start && destination) {
@@ -198,10 +217,8 @@ class PlannerMap extends ReactQueryParams {
         calculating: true
       });
       const plannerToUse = new planner.class();
-      plannerToUse.addConnectionSource(
-        "https://graph.irail.be/sncb/connections"
-      );
-      plannerToUse.addStopSource("https://irail.be/stations/NMBS");
+      this.addConnectionSourcesToPlanner(plannerToUse);
+      this.addStopSourcesToPlanner(plannerToUse);
       let blocked = false;
       plannerToUse
         .query({
@@ -356,6 +373,13 @@ class PlannerMap extends ReactQueryParams {
     this.setQueryParams({ planner: plannerId });
   };
 
+  changeSelectedConnectionSources = newSources => {
+    this.setState({ selectedConnectionSources: newSources });
+  };
+  changeSelectedStopSources = newSources => {
+    this.setState({ selectedStopSources: newSources });
+  };
+
   render() {
     const {
       center,
@@ -375,7 +399,9 @@ class PlannerMap extends ReactQueryParams {
       fitBounds,
       planner,
       pointReached,
-      timeElapsed
+      timeElapsed,
+      selectedConnectionSources,
+      selectedStopSources
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -405,6 +431,10 @@ class PlannerMap extends ReactQueryParams {
         <SettingsBox
           planners={planners}
           connectionSources={connectionSources}
+          selectedConnectionSources={selectedConnectionSources}
+          changeSelectedConnectionSources={this.changeSelectedConnectionSources}
+          selectedStopSources={selectedStopSources}
+          changeSelectedStopSources={this.changeSelectedStopSources}
           stopSources={stopSources}
           selectedPlanner={planner}
           changePlanner={this.changePlanner}

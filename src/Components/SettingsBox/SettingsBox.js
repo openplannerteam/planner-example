@@ -16,8 +16,15 @@ class SettingsBox extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      connectionSourceInput: "",
+      stopSourceInput: ""
+    };
   }
+  addConnectionSource = () => {
+    this.props.addNewConnectionSource(this.state.connectionSourceInput);
+    this.setState({ connectionSourceInput: "" });
+  };
 
   render() {
     const {
@@ -26,7 +33,11 @@ class SettingsBox extends Component {
       changePlanner,
       disabled,
       connectionSources,
-      stopSources
+      selectedConnectionSources,
+      changeSelectedConnectionSources,
+      stopSources,
+      selectedStopSources,
+      changeSelectedStopSources
     } = this.props;
     return (
       <Card className={styles.settingsBox}>
@@ -52,22 +63,50 @@ class SettingsBox extends Component {
               ))}
             </MaterialSelect>
             <Typography variant="caption">
-              {selectedPlanner.description ? selectedPlanner.description : "No description available"}
+              {selectedPlanner.description
+                ? selectedPlanner.description
+                : "No description available"}
             </Typography>
             <br />
             <InputLabel>Connection Sources :</InputLabel>
-            <div className={styles.selects}>
-              <Select
-                isMulti
-                name="colors"
-                options={connectionSources.map(s => {
-                  return { value: s, label: s };
-                })}
-                menuPortalTarget={document.querySelector('body')}
-                onChange={(e)=>{console.log(e)}}
-                value={[]}
-              />
-            </div>
+            <Select
+              isDisabled={disabled}
+              isMulti
+              name="connection-sources"
+              options={connectionSources}
+              menuPortalTarget={document.querySelector("body")} //to make it on top
+              onChange={changeSelectedConnectionSources}
+              inputValue={this.state.connectionSourceInput}
+              onInputChange={e => {
+                this.setState({ connectionSourceInput: e });
+              }}
+              value={selectedConnectionSources}
+              noOptionsMessage={() => {
+                return (
+                  <Typography variant="inherit">Add {this.state.connectionSourceInput}</Typography>
+                );
+              }}
+            />
+            <br/>
+            <InputLabel>Stop Sources :</InputLabel>
+            <Select
+              isDisabled={disabled}
+              isMulti
+              name="stop-sources"
+              options={stopSources}
+              menuPortalTarget={document.querySelector("body")} //to make it on top
+              onChange={changeSelectedStopSources}
+              inputValue={this.state.stopSourceInput}
+              onInputChange={e => {
+                this.setState({ stopSourceInput: e });
+              }}
+              value={selectedStopSources}
+              noOptionsMessage={() => {
+                return (
+                  <Typography variant="inherit">Add {this.state.stopSourceInput}</Typography>
+                );
+              }}
+            />
           </FormGroup>
         </CardContent>
       </Card>
