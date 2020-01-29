@@ -1,6 +1,6 @@
 import "./App.css";
 
-import PlannerMap from "./Components/PlannerMap/PlannerMap";
+import PlannerMap from "./components/PlannerMap/PlannerMap";
 import React from "react";
 
 function App() {

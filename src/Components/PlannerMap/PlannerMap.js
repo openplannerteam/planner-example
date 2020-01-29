@@ -24,9 +24,9 @@ import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
 import SettingsBox from "../SettingsBox/SettingsBox";
 import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
-import connectionSources from "../../Data/connectionSources";
+import connectionSources from "../../data/connectionSources";
 import hull from "hull.js";
-import stopSources from "../../Data/stopSources";
+import stopSources from "../../data/stopSources";
 
 const planners = [
   {
