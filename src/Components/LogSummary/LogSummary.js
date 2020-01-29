@@ -2,6 +2,7 @@ import { Box, Grid } from "@material-ui/core";
 import React, { Component } from "react";
 
 import ImportExportIcon from "@material-ui/icons/ImportExport";
+import LinearScaleIcon from "@material-ui/icons/LinearScale";
 import styles from "./LogSummary.module.css";
 
 class LogSummary extends Component {
@@ -12,7 +13,8 @@ class LogSummary extends Component {
   }
 
   render() {
-    const { show = true, scannedConnections } = this.props;
+    const { show = true, scannedConnections, scannedDistance } = this.props;
+    console.log(scannedDistance);
     return (
       <React.Fragment>
         {show ? (
@@ -30,18 +32,18 @@ class LogSummary extends Component {
                   </Grid>
                 </Grid>
               </Grid>
-              {/* <Grid item>
+              <Grid item>
                 <Grid container>
                   <Grid item>
                     <Box mt={1.5}>
-                      <ImportExportIcon></ImportExportIcon>
+                      <LinearScaleIcon></LinearScaleIcon>
                     </Box>
                   </Grid>
                   <Grid item>
-                    <Box mt={2}>{scannedConnections}</Box>
+                    <Box mt={2}>{scannedDistance}km</Box>
                   </Grid>
                 </Grid>
-              </Grid> */}
+              </Grid>
             </Grid>
           </div>
         ) : null}

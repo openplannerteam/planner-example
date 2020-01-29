@@ -27,6 +27,8 @@ import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
 import connectionSources from "../../data/connectionSources";
 import hull from "hull.js";
 import stopSources from "../../data/stopSources";
+import turfDistance from "@turf/distance";
+import { point as turfPoint } from "@turf/helpers";
 
 const planners = [
   {
@@ -98,7 +100,8 @@ class PlannerMap extends ReactQueryParams {
       selectedConnectionSources: [connectionSources[0]],
       selectedStopSources: [stopSources[0]],
       pointReached: [],
-      timeElapsed: 0
+      timeElapsed: 0,
+      scannedDistance: 0
     };
     this.timer = null;
     EventBus.on(EventType.InvalidQuery, error => {
@@ -127,11 +130,20 @@ class PlannerMap extends ReactQueryParams {
         new this.state.planner.class()
           .resolveLocation(locationId)
           .then(location => {
+            const { scannedDistance, start } = this.state;
+            var from = turfPoint([start.lng, start.lat]);
+            var to = turfPoint([location.longitude, location.latitude]);
+            var distance = turfDistance(from, to);
+            if (distance > scannedDistance) {
+              this.setState({ scannedDistance: distance.toFixed(1) });
+            }
             this.setState({
               pointReached: [...this.state.pointReached, location]
             });
           })
-          .catch(error => {});
+          .catch(error => {
+            console.log(error);
+          });
       });
   }
 
@@ -170,7 +182,8 @@ class PlannerMap extends ReactQueryParams {
       routeStations: [],
       stationPopup: null,
       fitBounds: null,
-      pointReached: []
+      pointReached: [],
+      scannedDistance: 0
     });
     if (complete) {
       this.setState({
@@ -401,7 +414,8 @@ class PlannerMap extends ReactQueryParams {
       pointReached,
       timeElapsed,
       selectedConnectionSources,
-      selectedStopSources
+      selectedStopSources,
+      scannedDistance
     } = this.state;
     return (
       <Box boxShadow={2}>
@@ -419,6 +433,7 @@ class PlannerMap extends ReactQueryParams {
         <LogSummary
           show={calculating || finished}
           scannedConnections={scannedConnections}
+          scannedDistance={scannedDistance}
         ></LogSummary>
         <LogModal
           open={isLogModalOpen}
