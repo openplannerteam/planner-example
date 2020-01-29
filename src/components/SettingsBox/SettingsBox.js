@@ -35,9 +35,11 @@ class SettingsBox extends Component {
       connectionSources,
       selectedConnectionSources,
       changeSelectedConnectionSources,
+      addNewConnectionSource,
       stopSources,
       selectedStopSources,
-      changeSelectedStopSources
+      changeSelectedStopSources,
+      addNewStopSource
     } = this.props;
     return (
       <Card className={styles.settingsBox}>
@@ -74,6 +76,7 @@ class SettingsBox extends Component {
               sources={connectionSources}
               onChange={changeSelectedConnectionSources}
               selected={selectedConnectionSources}
+              addNewSource={addNewConnectionSource}
             ></SourcesDropdown>
             <br />
             <SourcesDropdown
@@ -82,6 +85,7 @@ class SettingsBox extends Component {
               sources={stopSources}
               onChange={changeSelectedStopSources}
               selected={selectedStopSources}
+              addNewSource={addNewStopSource}
             ></SourcesDropdown>
           </FormGroup>
         </CardContent>

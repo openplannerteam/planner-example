@@ -1,4 +1,4 @@
-import { InputLabel, Typography } from "@material-ui/core";
+import { Button, InputLabel } from "@material-ui/core";
 import React, { Component } from "react";
 
 import Select from "react-select";
@@ -13,7 +13,14 @@ class SourcesDropdown extends Component {
   }
 
   render() {
-    const { disabled, sources, onChange, selected, title } = this.props;
+    const {
+      disabled,
+      sources,
+      onChange,
+      selected,
+      title,
+      addNewSource
+    } = this.props;
     return (
       <div>
         <InputLabel>{title}</InputLabel>
@@ -21,7 +28,9 @@ class SourcesDropdown extends Component {
           isDisabled={disabled}
           isMulti
           name="connection-sources"
-          options={sources}
+          options={sources.map((s, index) => {
+            return { value: index, label: s };
+          })}
           menuPortalTarget={document.querySelector("body")} //to make it on top
           onChange={onChange}
           inputValue={this.state.input}
@@ -31,7 +40,16 @@ class SourcesDropdown extends Component {
           value={selected}
           noOptionsMessage={() => {
             return (
-              <Typography variant="inherit">Add {this.state.input}</Typography>
+              <Button
+                fullWidth
+                variant="text"
+                onClick={() => {
+                  addNewSource(this.state.input);
+                  this.setState({ input: "" });
+                }}
+              >
+                Add {this.state.input}
+              </Button>
             );
           }}
         />

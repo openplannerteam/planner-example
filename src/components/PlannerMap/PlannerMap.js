@@ -97,8 +97,10 @@ class PlannerMap extends ReactQueryParams {
       stationPopup: null,
       fitBounds: null,
       planner: planners[0],
-      selectedConnectionSources: [connectionSources[0]],
-      selectedStopSources: [stopSources[0]],
+      selectedConnectionSources: [{ value: 0, label: connectionSources[0] }],
+      newConnectionSourceId: connectionSources.length,
+      selectedStopSources: [{ value: 0, label: stopSources[0] }],
+      newStopSourceId: stopSources.length,
       pointReached: [],
       timeElapsed: 0,
       scannedDistance: 0
@@ -387,10 +389,33 @@ class PlannerMap extends ReactQueryParams {
   };
 
   changeSelectedConnectionSources = newSources => {
+    console.log(newSources);
     this.setState({ selectedConnectionSources: newSources });
   };
+
+  addNewConnectionSource = source => {
+    const { selectedConnectionSources, newConnectionSourceId } = this.state;
+    this.setState({
+      selectedConnectionSources: [
+        ...selectedConnectionSources,
+        { value: newConnectionSourceId, label: source },
+      ],
+      newConnectionSourceId: newConnectionSourceId+1
+    });
+  };
+
   changeSelectedStopSources = newSources => {
     this.setState({ selectedStopSources: newSources });
+  };
+  addNewStopSource = source => {
+    const { selectedStopSources, newStopSourceId } = this.state;
+    this.setState({
+      selectedStopSources: [
+        ...selectedStopSources,
+        { value: newStopSourceId, label: source },
+      ],
+      newStopSourceId: newStopSourceId+1
+    });
   };
 
   render() {
@@ -448,9 +473,11 @@ class PlannerMap extends ReactQueryParams {
           connectionSources={connectionSources}
           selectedConnectionSources={selectedConnectionSources}
           changeSelectedConnectionSources={this.changeSelectedConnectionSources}
+          addNewConnectionSource={this.addNewConnectionSource}
+          stopSources={stopSources}
           selectedStopSources={selectedStopSources}
           changeSelectedStopSources={this.changeSelectedStopSources}
-          stopSources={stopSources}
+          addNewStopSource={this.addNewStopSource}
           selectedPlanner={planner}
           changePlanner={this.changePlanner}
           disabled={calculating}
