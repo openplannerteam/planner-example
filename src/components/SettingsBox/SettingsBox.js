@@ -3,13 +3,13 @@ import {
   CardContent,
   FormGroup,
   InputLabel,
-  Select as MaterialSelect,
   MenuItem,
+  Select,
   Typography
 } from "@material-ui/core";
 import React, { Component } from "react";
 
-import Select from "react-select";
+import SourcesDropdown from "./SourcesDropdown";
 import styles from "./SettingsBox.module.css";
 
 class SettingsBox extends Component {
@@ -46,7 +46,7 @@ class SettingsBox extends Component {
           <br />
           <FormGroup>
             <InputLabel>Planner :</InputLabel>
-            <MaterialSelect
+            <Select
               value={selectedPlanner.id}
               onChange={e => {
                 changePlanner(e.target.value);
@@ -61,52 +61,28 @@ class SettingsBox extends Component {
                   {p.name}
                 </MenuItem>
               ))}
-            </MaterialSelect>
+            </Select>
             <Typography variant="caption">
               {selectedPlanner.description
                 ? selectedPlanner.description
                 : "No description available"}
             </Typography>
             <br />
-            <InputLabel>Connection Sources :</InputLabel>
-            <Select
-              isDisabled={disabled}
-              isMulti
-              name="connection-sources"
-              options={connectionSources}
-              menuPortalTarget={document.querySelector("body")} //to make it on top
+            <SourcesDropdown
+              title="Connection Sources :"
+              disabled={disabled}
+              sources={connectionSources}
               onChange={changeSelectedConnectionSources}
-              inputValue={this.state.connectionSourceInput}
-              onInputChange={e => {
-                this.setState({ connectionSourceInput: e });
-              }}
-              value={selectedConnectionSources}
-              noOptionsMessage={() => {
-                return (
-                  <Typography variant="inherit">Add {this.state.connectionSourceInput}</Typography>
-                );
-              }}
-            />
-            <br/>
-            <InputLabel>Stop Sources :</InputLabel>
-            <Select
-              isDisabled={disabled}
-              isMulti
-              name="stop-sources"
-              options={stopSources}
-              menuPortalTarget={document.querySelector("body")} //to make it on top
+              selected={selectedConnectionSources}
+            ></SourcesDropdown>
+            <br />
+            <SourcesDropdown
+              title="Stop Sources :"
+              disabled={disabled}
+              sources={stopSources}
               onChange={changeSelectedStopSources}
-              inputValue={this.state.stopSourceInput}
-              onInputChange={e => {
-                this.setState({ stopSourceInput: e });
-              }}
-              value={selectedStopSources}
-              noOptionsMessage={() => {
-                return (
-                  <Typography variant="inherit">Add {this.state.stopSourceInput}</Typography>
-                );
-              }}
-            />
+              selected={selectedStopSources}
+            ></SourcesDropdown>
           </FormGroup>
         </CardContent>
       </Card>

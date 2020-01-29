@@ -192,7 +192,7 @@ class PlannerMap extends ReactQueryParams {
         center: [4.5118, 50.6282],
         zoom: [8]
       });
-      this.setQueryParams({ start: null, destination: null });
+      this.setQueryParams({ start: undefined, destination: undefined });
     }
   };
 

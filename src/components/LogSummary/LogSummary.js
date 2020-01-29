@@ -14,7 +14,6 @@ class LogSummary extends Component {
 
   render() {
     const { show = true, scannedConnections, scannedDistance } = this.props;
-    console.log(scannedDistance);
     return (
       <React.Fragment>
         {show ? (
