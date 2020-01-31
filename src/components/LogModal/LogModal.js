@@ -15,7 +15,7 @@ class LogModal extends Component {
   }
 
   render() {
-    const { open, onClose, logs, query, response } = this.props;
+    const { open, onClose, logs, query} = this.props;
     return (
       <Drawer open={open} modalElementClass={styles.logModal}>
         <Container>
@@ -40,12 +40,6 @@ class LogModal extends Component {
               </p>
             ))}
             <br />
-            {response ? (
-              <React.Fragment>
-                <h5>Response</h5>
-                <JSONPretty json={response} theme={JSONPrettyMon}></JSONPretty>
-              </React.Fragment>
-            ) : null}
           </Box>
         </Container>
       </Drawer>

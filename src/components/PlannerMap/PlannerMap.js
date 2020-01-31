@@ -33,7 +33,8 @@ class PlannerMap extends ReactQueryParams {
       start: null,
       destination: null,
       routeCoords: [],
-      route: null,
+      routes: [],
+      selectedRouteIndex: 0,
       calculating: false,
       finished: false,
       isLogModalOpen: false,
@@ -72,6 +73,7 @@ class PlannerMap extends ReactQueryParams {
     this.addNewConnectionSource = this.addNewConnectionSource.bind(this);
     this.changeSelectedStopSources = this.changeSelectedStopSources.bind(this);
     this.addNewStopSource = this.addNewStopSource.bind(this);
+    this.changeSelectedRoute = this.changeSelectedRoute.bind(this);
     this.timer = null;
     this.worker = new Worker();
     this.worker.addEventListener("message", e => {
@@ -127,17 +129,16 @@ class PlannerMap extends ReactQueryParams {
             [Math.max(...longitudes), Math.min(...latitudes)]
           ];
           this.setState({
-            route: completePath,
-            routeCoords,
+            routes: [...this.state.routes, completePath],
+            routeCoords: [...this.state.routeCoords, routeCoords],
             fitBounds: zoomBoundaries,
-            routeStations
+            routeStations: [...this.state.routeStations, routeStations]
           });
           break;
         case "end":
           console.log("No more paths!");
           this.setState({
             calculating: false,
-            isLogModalOpen: false,
             finished: true
           });
           this.stopTimer();
@@ -226,8 +227,9 @@ class PlannerMap extends ReactQueryParams {
   resetRoute(complete) {
     this.setState({
       finished: false,
-      route: null,
+      routes: [],
       routeCoords: [],
+      selectedRouteIndex: 0,
       logs: [],
       query: null,
       scannedConnections: 0,
@@ -375,6 +377,12 @@ class PlannerMap extends ReactQueryParams {
     this.setQueryParams({ stopSources: newSources });
   }
 
+  changeSelectedRoute(index){
+    this.setState({
+      selectedRouteIndex: index
+    })
+  }
+
   render() {
     const {
       center,
@@ -382,7 +390,7 @@ class PlannerMap extends ReactQueryParams {
       start,
       destination,
       routeCoords,
-      route,
+      routes,
       calculating,
       finished,
       isLogModalOpen,
@@ -397,16 +405,18 @@ class PlannerMap extends ReactQueryParams {
       timeElapsed,
       selectedConnectionSources,
       selectedStopSources,
-      scannedDistance
+      scannedDistance,
+      selectedRouteIndex
     } = this.state;
     return (
       <Box boxShadow={2}>
         <ResultBox
-          route={route}
+          routes={routes}
           finished={finished}
           setFitBounds={this.setFitBounds}
           profile={planner.profile}
           timeElapsed={timeElapsed}
+          changeSelectedRoute={this.changeSelectedRoute}
         ></ResultBox>
         <LogButton
           openLogs={this.openLogModal}
@@ -423,7 +433,6 @@ class PlannerMap extends ReactQueryParams {
           calculating={calculating}
           logs={logs}
           query={query}
-          response={route}
         ></LogModal>
         <SettingsBox
           planners={planners}
@@ -463,11 +472,11 @@ class PlannerMap extends ReactQueryParams {
             calculating={calculating}
           ></PointMarkerLayer>
           <RouteLayer
-            routeCoords={routeCoords}
+            routeCoords={routeCoords[selectedRouteIndex]}
             profile={planner.profile}
           ></RouteLayer>
           <StationMarkerLayer
-            routeStations={routeStations}
+            routeStations={routeStations[selectedRouteIndex]}
             showPopup={this.showPopup}
             hidePopup={this.hidePopup}
             stationPopup={stationPopup}

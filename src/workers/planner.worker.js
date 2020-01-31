@@ -79,7 +79,7 @@ self.addEventListener("message", e => {
 
       maximumTransfers: 4
     })
-    .take(3)
+    .take(4)
     .on("data", async path => {
       const completePath = await planner.completePath(path);
       self.postMessage({ type: "data", path, completePath });
