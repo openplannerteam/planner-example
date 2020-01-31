@@ -21,10 +21,6 @@ class SettingsBox extends Component {
       stopSourceInput: ""
     };
   }
-  addConnectionSource = () => {
-    this.props.addNewConnectionSource(this.state.connectionSourceInput);
-    this.setState({ connectionSourceInput: "" });
-  };
 
   render() {
     const {

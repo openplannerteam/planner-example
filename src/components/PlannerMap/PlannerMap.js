@@ -1,14 +1,4 @@
-import {
-  EventBus,
-  EventType,
-  FlexibleProfileTransitPlanner,
-  FlexibleRoadPlanner,
-  FlexibleTransitPlanner,
-  ReducedCarPlanner,
-  TravelMode,
-  TriangleTransitPlanner,
-  Units
-} from "plannerjs";
+import { EventBus, EventType } from "plannerjs";
 
 import { Box } from "@material-ui/core";
 import LogButton from "../LogButton/LogButton";
@@ -24,49 +14,11 @@ import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
 import SettingsBox from "../SettingsBox/SettingsBox";
 import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
+import Worker from "../../sevices/planner.worker";
 import connectionSources from "../../data/connectionSources";
 import hull from "hull.js";
+import planners from "../../data/planners";
 import stopSources from "../../data/stopSources";
-import turfDistance from "@turf/distance";
-import { point as turfPoint } from "@turf/helpers";
-
-const planners = [
-  {
-    id: 1,
-    name: "Flexible Profile Transit Planner",
-    profile: TravelMode.Walking,
-    class: FlexibleProfileTransitPlanner,
-    description: FlexibleProfileTransitPlanner.description
-  },
-  {
-    id: 2,
-    name: "Flexible Road Planner",
-    profile: "car",
-    class: FlexibleRoadPlanner,
-    description: FlexibleRoadPlanner.description
-  },
-  {
-    id: 3,
-    name: "Flexible Transit Planner",
-    profile: TravelMode.Walking,
-    class: FlexibleTransitPlanner,
-    description: FlexibleTransitPlanner.description
-  },
-  {
-    id: 4,
-    name: "Reduced Car Planner",
-    profile: "car",
-    class: ReducedCarPlanner,
-    description: ReducedCarPlanner.description
-  },
-  {
-    id: 5,
-    name: "Triangle Transit Planner",
-    profile: TravelMode.Walking,
-    class: TriangleTransitPlanner,
-    description: TriangleTransitPlanner.description
-  }
-];
 
 const Map = ReactMapboxGl({
   accessToken:
@@ -74,9 +26,6 @@ const Map = ReactMapboxGl({
 });
 
 class PlannerMap extends ReactQueryParams {
-  defaultQueryParams = {
-    planner: 3
-  };
   constructor(props) {
     super(props);
 
@@ -105,54 +54,34 @@ class PlannerMap extends ReactQueryParams {
       timeElapsed: 0,
       scannedDistance: 0
     };
+
+    this.setFitBounds = this.setFitBounds.bind(this);
+    this.resetRoute = this.resetRoute.bind(this);
+    this.startTimer = this.startTimer.bind(this);
+    this.stopTimer = this.stopTimer.bind(this);
+    this.calculateRoute = this.calculateRoute.bind(this);
+    this.onMapClick = this.onMapClick.bind(this);
+    this.startDragEnd = this.startDragEnd.bind(this);
+    this.destinationDragEnd = this.destinationDragEnd.bind(this);
+    this.openLogModal = this.openLogModal.bind(this);
+    this.closeLogModal = this.closeLogModal.bind(this);
+    this.showPopup = this.showPopup.bind(this);
+    this.hidePopup = this.hidePopup.bind(this);
+    this.changePlanner = this.changePlanner.bind(this);
+    this.changeSelectedConnectionSources = this.changeSelectedConnectionSources.bind(
+      this
+    );
+    this.addNewConnectionSource = this.addNewConnectionSource.bind(this);
+    this.changeSelectedStopSources = this.changeSelectedStopSources.bind(this);
+    this.addNewStopSource = this.addNewStopSource.bind(this);
     this.timer = null;
-    EventBus.on(EventType.InvalidQuery, error => {
-      console.log("InvalidQuery", error);
-    })
-      .on(EventType.AbortQuery, reason => {
-        console.log("AbortQuery", reason);
-      })
-      .on(EventType.Query, query => {
-        console.log("Query", query);
-        this.setState({ query });
-      })
-      .on(EventType.ResourceFetch, resource => {
-        const { url, duration } = resource;
-        console.log(`[GET] ${url} (${duration}ms)`);
-        let { logs, scannedConnections } = this.state;
-        this.setState({
-          logs: [...logs, { url, duration }],
-          scannedConnections: scannedConnections + 1
-        });
-      })
-      .on(EventType.Warning, e => {
-        console.warn(e);
-      })
-      .on(EventType.ReachableID, locationId => {
-        new this.state.planner.class()
-          .resolveLocation(locationId)
-          .then(location => {
-            const { scannedDistance, start } = this.state;
-            var from = turfPoint([start.lng, start.lat]);
-            var to = turfPoint([location.longitude, location.latitude]);
-            var distance = turfDistance(from, to);
-            if (distance > scannedDistance) {
-              this.setState({ scannedDistance: distance.toFixed(1) });
-            }
-            this.setState({
-              pointReached: [...this.state.pointReached, location]
-            });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      });
+    this.worker = null;
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     let { start, destination, planner } = this.queryParams;
     if (!planner || isNaN(parseInt(planner))) {
-      this.setQueryParams({ planner: 1 });
+      this.setQueryParams({ planner: 3 });
       planner = this.queryParams.planner;
     }
     this.setState(
@@ -165,15 +94,16 @@ class PlannerMap extends ReactQueryParams {
         this.calculateRoute();
       }
     );
-  };
+    this.worker = new Worker();
+  }
 
-  setFitBounds = fitBounds => {
+  setFitBounds(fitBounds) {
     this.setState({
       fitBounds
     });
-  };
+  }
 
-  resetRoute = complete => {
+  resetRoute(complete) {
     this.setState({
       finished: false,
       route: null,
@@ -196,141 +126,145 @@ class PlannerMap extends ReactQueryParams {
       });
       this.setQueryParams({ start: undefined, destination: undefined });
     }
-  };
+  }
 
-  startTimer = () => {
+  startTimer() {
     this.timer = new Date();
-  };
+  }
 
-  stopTimer = () => {
+  stopTimer() {
     const millis = new Date() - this.timer;
     this.setState({ timeElapsed: millis });
-  };
+  }
 
-  addConnectionSourcesToPlanner = planner => {
-    const { selectedConnectionSources } = this.state;
-    selectedConnectionSources.forEach(s => {
-      planner.addConnectionSource(s.label);
-      console.log("added : ", s.label);
-    });
-  };
-
-  addStopSourcesToPlanner = planner => {
-    const { selectedStopSources } = this.state;
-    selectedStopSources.forEach(s => {
-      planner.addStopSource(s.label);
-      console.log("added : ", s.label);
-    });
-  };
-
-  calculateRoute = () => {
-    const { start, destination, planner } = this.state;
+  calculateRoute() {
+    const {
+      start,
+      destination,
+      planner,
+      selectedConnectionSources,
+      selectedStopSources
+    } = this.state;
     if (start && destination) {
       this.resetRoute();
       this.startTimer();
       this.setState({
         calculating: true
       });
-      const plannerToUse = new planner.class();
-      this.addConnectionSourcesToPlanner(plannerToUse);
-      this.addStopSourcesToPlanner(plannerToUse);
-      let blocked = false;
-      plannerToUse
-        .query({
-          from: { longitude: start.lng, latitude: start.lat },
-          to: { longitude: destination.lng, latitude: destination.lat },
-          minimumDepartureTime: new Date(),
-          walkingSpeed: 3, // KmH
-          minimumWalkingSpeed: 3, // KmH
-          maximumWalkingDistance: 200, // meters
-          minimumTransferDuration: Units.fromMinutes(1),
-          maximumTransferDuration: Units.fromMinutes(30),
-          maximumTravelDuration: Units.fromHours(1.5),
-          maximumTransfers: 4
-        })
-        .take(3)
-        .on("data", async path => {
-          console.log("this is a path");
-          console.log(path);
-          blocked = true;
-          const completePath = await plannerToUse.completePath(path);
-          console.log(completePath);
-          let routeCoords = [];
-          let routeStations = [];
-          completePath.legs.forEach(leg => {
-            let coords = [];
-            leg.steps.forEach(step => {
-              const startCoords = [
-                step.startLocation.longitude,
-                step.startLocation.latitude
-              ];
-              const stopCoords = [
-                step.stopLocation.longitude,
-                step.stopLocation.latitude
-              ];
-              coords.push(startCoords);
-              coords.push(stopCoords);
-              if (step.startLocation.name) {
-                routeStations.push({
-                  coords: startCoords,
-                  name: step.startLocation.name
-                });
-              }
-              if (step.stopLocation.name) {
-                routeStations.push({
-                  coords: stopCoords,
-                  name: step.stopLocation.name
-                });
-              }
-            });
-            routeCoords.push({
-              coords: [...coords],
-              travelMode: leg.travelMode
-            });
-          });
-          const convexHull = hull(
-            routeCoords.map(rc => rc.coords.map(c => c)).flat()
-          );
-          const longitudes = convexHull.map(c => c[0]);
-          const latitudes = convexHull.map(c => c[1]);
 
-          //[[westest, northest],[eastest, southest]]
-          const zoomBoundaries = [
-            [Math.min(...longitudes), Math.max(...latitudes)],
-            [Math.max(...longitudes), Math.min(...latitudes)]
-          ];
-          this.setState({
-            route: completePath,
-            routeCoords,
-            fitBounds: zoomBoundaries,
-            routeStations
-          });
-          blocked = false;
-          if (!this.state.calculating) {
-            this.setState({ finished: true });
-          }
-        })
-        .on("end", () => {
-          console.log("No more paths!");
-          this.setState({
-            calculating: false,
-            isLogModalOpen: false
-          });
-          if (!blocked) {
-            this.setState({ finished: true });
-          }
-          this.stopTimer();
-        })
-        .on("error", error => {
-          console.error(error);
-          this.setState({ calculating: false }, () => {
-            console.log(this.state);
-          });
-        });
+      this.worker.postMessage({
+        start,
+        destination,
+        plannerId: planner.id,
+        connectionSources: selectedConnectionSources.map(s => s.label),
+        stopSources: selectedStopSources.map(s => s.label)
+      });
+      this.worker.addEventListener("message", e => {
+        const { type } = e.data;
+        switch (type) {
+          case "data":
+            const { path, completePath } = e.data;
+            console.log("this is a path");
+            console.log(path);
+            console.log(completePath);
+            let routeCoords = [];
+            let routeStations = [];
+            completePath.legs.forEach(leg => {
+              let coords = [];
+              leg.steps.forEach(step => {
+                const startCoords = [
+                  step.startLocation.longitude,
+                  step.startLocation.latitude
+                ];
+                const stopCoords = [
+                  step.stopLocation.longitude,
+                  step.stopLocation.latitude
+                ];
+                coords.push(startCoords);
+                coords.push(stopCoords);
+                if (step.startLocation.name) {
+                  routeStations.push({
+                    coords: startCoords,
+                    name: step.startLocation.name
+                  });
+                }
+                if (step.stopLocation.name) {
+                  routeStations.push({
+                    coords: stopCoords,
+                    name: step.stopLocation.name
+                  });
+                }
+              });
+              routeCoords.push({
+                coords: [...coords],
+                travelMode: leg.travelMode
+              });
+            });
+            const convexHull = hull(
+              routeCoords.map(rc => rc.coords.map(c => c)).flat()
+            );
+            const longitudes = convexHull.map(c => c[0]);
+            const latitudes = convexHull.map(c => c[1]);
+
+            //[[westest, northest],[eastest, southest]]
+            const zoomBoundaries = [
+              [Math.min(...longitudes), Math.max(...latitudes)],
+              [Math.max(...longitudes), Math.min(...latitudes)]
+            ];
+            this.setState({
+              route: completePath,
+              routeCoords,
+              fitBounds: zoomBoundaries,
+              routeStations
+            });
+            break;
+          case "end":
+            console.log("No more paths!");
+            this.setState({
+              calculating: false,
+              isLogModalOpen: false,
+              finished: true
+            });
+            this.stopTimer();
+            break;
+          case "error":
+            const { error } = e.data;
+            console.error(error);
+            this.setState({ calculating: false });
+            break;
+          case "query":
+            const { query } = e.data;
+            console.log("Query", query);
+            this.setState({ query });
+            break;
+          case "resourceFetch":
+            const { resource } = e.data;
+            const { url, duration } = resource;
+            console.log(`[GET] ${url} (${duration}ms)`);
+            let { logs, scannedConnections } = this.state;
+            this.setState({
+              logs: [...logs, { url, duration }],
+              scannedConnections: scannedConnections + 1
+            });
+            break;
+          case "pointReached":
+            const { location, distance } = e.data;
+            const { scannedDistance } = this.state;
+            if (distance > scannedDistance) {
+              this.setState({ scannedDistance: distance.toFixed(1) });
+            }
+            this.setState({
+              pointReached: [...this.state.pointReached, location]
+            });
+            break;
+          default:
+            break;
+        }
+      });
     }
-  };
+  }
 
-  onMapClick = (map, e) => {
+  onMapClick(map, e) {
     const coord = e.lngLat;
     if (!this.state.start) {
       this.setQueryParams({ start: coord });
@@ -341,41 +275,41 @@ class PlannerMap extends ReactQueryParams {
         this.calculateRoute();
       });
     }
-  };
+  }
 
-  startDragEnd = e => {
+  startDragEnd(e) {
     const newState = { start: e.lngLat };
     this.setQueryParams(newState);
     this.setState(newState, () => {
       this.calculateRoute();
     });
-  };
+  }
 
-  destinationDragEnd = e => {
+  destinationDragEnd(e) {
     const newState = { destination: e.lngLat };
     this.setQueryParams(newState);
     this.setState(newState, () => {
       this.calculateRoute();
     });
-  };
+  }
 
-  openLogModal = () => {
+  openLogModal() {
     this.setState({ isLogModalOpen: true });
-  };
+  }
 
-  closeLogModal = () => {
+  closeLogModal() {
     this.setState({ isLogModalOpen: false });
-  };
+  }
 
-  showPopup = station => {
+  showPopup(station) {
     this.setState({ stationPopup: station });
-  };
+  }
 
-  hidePopup = () => {
+  hidePopup() {
     this.setState({ stationPopup: null });
-  };
+  }
 
-  changePlanner = plannerId => {
+  changePlanner(plannerId) {
     this.setState(
       {
         planner: planners.filter(p => p.id === plannerId)[0]
@@ -386,37 +320,37 @@ class PlannerMap extends ReactQueryParams {
       }
     );
     this.setQueryParams({ planner: plannerId });
-  };
+  }
 
-  changeSelectedConnectionSources = newSources => {
+  changeSelectedConnectionSources(newSources) {
     console.log(newSources);
     this.setState({ selectedConnectionSources: newSources });
-  };
+  }
 
-  addNewConnectionSource = source => {
+  addNewConnectionSource(source) {
     const { selectedConnectionSources, newConnectionSourceId } = this.state;
     this.setState({
       selectedConnectionSources: [
         ...selectedConnectionSources,
-        { value: newConnectionSourceId, label: source },
+        { value: newConnectionSourceId, label: source }
       ],
-      newConnectionSourceId: newConnectionSourceId+1
+      newConnectionSourceId: newConnectionSourceId + 1
     });
-  };
+  }
 
-  changeSelectedStopSources = newSources => {
+  changeSelectedStopSources(newSources) {
     this.setState({ selectedStopSources: newSources });
-  };
-  addNewStopSource = source => {
+  }
+  addNewStopSource(source) {
     const { selectedStopSources, newStopSourceId } = this.state;
     this.setState({
       selectedStopSources: [
         ...selectedStopSources,
-        { value: newStopSourceId, label: source },
+        { value: newStopSourceId, label: source }
       ],
-      newStopSourceId: newStopSourceId+1
+      newStopSourceId: newStopSourceId + 1
     });
-  };
+  }
 
   render() {
     const {

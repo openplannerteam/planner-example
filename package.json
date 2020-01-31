@@ -1,17 +1,44 @@
 {
-  "name": "planner-example",
-  "version": "0.1.0",
-  "private": true,
+  "name": "planner-example-webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --open --mode development",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode production"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-react": "^7.8.3",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.6",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "css-loader": "^3.4.2",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "prop-types": "^15.7.2",
+    "style-loader": "^1.1.3",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1",
+    "worker-loader": "^2.0.0"
+  },
   "dependencies": {
+    "@comunica/logger-pretty": "^1.10.0",
     "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.5.1",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
     "@turf/distance": "^6.0.1",
     "@turf/helpers": "^6.1.4",
     "hull.js": "^1.0.0",
-    "mapbox-gl": "^1.6.1",
+    "lodash": "^4.17.15",
+    "mapbox-gl": "^1.7.0",
     "plannerjs": "^0.3.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -19,29 +46,7 @@
     "react-json-pretty": "^2.2.0",
     "react-mapbox-gl": "^4.8.2",
     "react-query-params": "^1.0.9",
-    "react-reveal": "^1.2.2",
-    "react-scripts": "3.3.0",
-    "react-select": "^3.0.8"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "react-select": "^3.0.8",
+    "string-replace-webpack-plugin": "^0.1.3"
   }
 }

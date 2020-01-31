@@ -15,7 +15,7 @@ class ResultBox extends Component {
 
     this.state = {};
   }
-  msToTime = duration => {
+  msToTime(duration){
     let minutes = parseInt((duration / (1000 * 60)) % 60);
     let hours = parseInt((duration / (1000 * 60 * 60)) % 24);
     return hours !== 0
