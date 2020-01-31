@@ -45,7 +45,7 @@ function configureEventBus(planner, start) {
           self.postMessage({ type: "pointReached", location, distance });
         })
         .catch(error => {
-          console.error(error);
+          console.log(error);
         });
     });
 }

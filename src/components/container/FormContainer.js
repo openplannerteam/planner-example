@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import Worker from "../../sevices/planner.worker";
+import Worker from "../../workers/planner.worker";
 import styles from "./FormContainer.module.css";
 
 class FormContainer extends Component {

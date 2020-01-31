@@ -14,7 +14,7 @@ import ResultBox from "../ResultBox/ResultBox";
 import RouteLayer from "../MapLayers/RouteLayer";
 import SettingsBox from "../SettingsBox/SettingsBox";
 import StationMarkerLayer from "../MapLayers/StationMarkerLayer";
-import Worker from "../../sevices/planner.worker";
+import Worker from "../../workers/planner.worker";
 import connectionSources from "../../data/connectionSources";
 import hull from "hull.js";
 import planners from "../../data/planners";
@@ -75,26 +75,46 @@ class PlannerMap extends ReactQueryParams {
     this.changeSelectedStopSources = this.changeSelectedStopSources.bind(this);
     this.addNewStopSource = this.addNewStopSource.bind(this);
     this.timer = null;
-    this.worker = null;
+    this.worker = new Worker();
   }
 
   componentDidMount() {
-    let { start, destination, planner } = this.queryParams;
+    let {
+      start,
+      destination,
+      planner,
+      connectionSources,
+      stopSources
+    } = this.queryParams;
+    const { selectedConnectionSources, selectedStopSources } = this.state;
+    let newConnectionSources = [];
+    let newStopSources = [];
     if (!planner || isNaN(parseInt(planner))) {
       this.setQueryParams({ planner: 3 });
       planner = this.queryParams.planner;
+    }
+    if (connectionSources && connectionSources.length > 0) {
+      newConnectionSources = connectionSources;
+    } else {
+      newConnectionSources = selectedConnectionSources;
+    }
+    if (stopSources && stopSources.length > 0) {
+      newStopSources = stopSources;
+    } else {
+      newStopSources = selectedStopSources;
     }
     this.setState(
       {
         start,
         destination,
-        planner: planners.filter(p => p.id === parseInt(planner))[0]
+        planner: planners.filter(p => p.id === parseInt(planner))[0],
+        selectedConnectionSources: newConnectionSources,
+        selectedStopSources: newStopSources
       },
       () => {
         this.calculateRoute();
       }
     );
-    this.worker = new Worker();
   }
 
   setFitBounds(fitBounds) {
@@ -325,31 +345,37 @@ class PlannerMap extends ReactQueryParams {
   changeSelectedConnectionSources(newSources) {
     console.log(newSources);
     this.setState({ selectedConnectionSources: newSources });
+    this.setQueryParams({ connectionSources: newSources });
   }
 
   addNewConnectionSource(source) {
     const { selectedConnectionSources, newConnectionSourceId } = this.state;
+    const newSources = [
+      ...selectedConnectionSources,
+      { value: newConnectionSourceId, label: source }
+    ];
     this.setState({
-      selectedConnectionSources: [
-        ...selectedConnectionSources,
-        { value: newConnectionSourceId, label: source }
-      ],
+      selectedConnectionSources: newSources,
       newConnectionSourceId: newConnectionSourceId + 1
     });
+    this.setQueryParams({ connectionSources: newSources });
   }
 
   changeSelectedStopSources(newSources) {
     this.setState({ selectedStopSources: newSources });
+    this.setQueryParams({ stopSources: newSources });
   }
   addNewStopSource(source) {
     const { selectedStopSources, newStopSourceId } = this.state;
+    const newSources = [
+      ...selectedStopSources,
+      { value: newStopSourceId, label: source }
+    ];
     this.setState({
-      selectedStopSources: [
-        ...selectedStopSources,
-        { value: newStopSourceId, label: source }
-      ],
+      selectedStopSources: newSources,
       newStopSourceId: newStopSourceId + 1
     });
+    this.setQueryParams({ stopSources: newSources });
   }
 
   render() {
