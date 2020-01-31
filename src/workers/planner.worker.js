@@ -17,38 +17,35 @@ function addStopSourcesToPlanner(planner, sources) {
     console.log("added : ", s);
   });
 }
-
-function configureEventBus(planner, start) {
-  EventBus.on(EventType.InvalidQuery, error => {
-    console.log("InvalidQuery", error);
+EventBus.on(EventType.InvalidQuery, error => {
+  console.log("InvalidQuery", error);
+})
+  .on(EventType.AbortQuery, reason => {
+    console.log("AbortQuery", reason);
   })
-    .on(EventType.AbortQuery, reason => {
-      console.log("AbortQuery", reason);
-    })
-    .on(EventType.Query, query => {
-      self.postMessage({ type: "query", query });
-    })
-    .on(EventType.ResourceFetch, resource => {
-      const { url, duration } = resource;
-      self.postMessage({ type: "resourceFetch", resource: { url, duration } });
-    })
-    .on(EventType.Warning, e => {
-      console.warn(e);
-    })
-    .on(EventType.ReachableID, locationId => {
-      planner
-        .resolveLocation(locationId)
-        .then(location => {
-          var from = turfPoint([start.lng, start.lat]);
-          var to = turfPoint([location.longitude, location.latitude]);
-          var distance = turfDistance(from, to);
-          self.postMessage({ type: "pointReached", location, distance });
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    });
-}
+  .on(EventType.Query, query => {
+    self.postMessage({ type: "query", query });
+  })
+  .on(EventType.ResourceFetch, resource => {
+    const { url, duration } = resource;
+    self.postMessage({ type: "resourceFetch", resource: { url, duration } });
+  })
+  .on(EventType.Warning, e => {
+    console.warn(e);
+  })
+  .on(EventType.ReachableID, locationId => {
+    // planner
+    //   .resolveLocation(locationId)
+    //   .then(location => {
+    //     var from = turfPoint([start.lng, start.lat]);
+    //     var to = turfPoint([location.longitude, location.latitude]);
+    //     var distance = turfDistance(from, to);
+    //     self.postMessage({ type: "pointReached", location, distance });
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //   });
+  });
 
 self.addEventListener("message", e => {
   console.log("hi from worker");
@@ -63,7 +60,7 @@ self.addEventListener("message", e => {
   const planner = new plannerToUse();
   addConnectionSourcesToPlanner(planner, connectionSources);
   addStopSourcesToPlanner(planner, stopSources);
-  configureEventBus(planner, start);
+  // configureEventBus(planner, start);
   planner
     .query({
       from: { longitude: start.lng, latitude: start.lat },

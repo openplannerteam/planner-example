@@ -1,5 +1,3 @@
-import { EventBus, EventType } from "plannerjs";
-
 import { Box } from "@material-ui/core";
 import LogButton from "../LogButton/LogButton";
 import LogModal from "../LogModal/LogModal";
@@ -76,6 +74,108 @@ class PlannerMap extends ReactQueryParams {
     this.addNewStopSource = this.addNewStopSource.bind(this);
     this.timer = null;
     this.worker = new Worker();
+    this.worker.addEventListener("message", e => {
+      const { type } = e.data;
+      switch (type) {
+        case "data":
+          const { path, completePath } = e.data;
+          console.log("this is a path");
+          console.log(path);
+          console.log(completePath);
+          let routeCoords = [];
+          let routeStations = [];
+          completePath.legs.forEach(leg => {
+            let coords = [];
+            leg.steps.forEach(step => {
+              const startCoords = [
+                step.startLocation.longitude,
+                step.startLocation.latitude
+              ];
+              const stopCoords = [
+                step.stopLocation.longitude,
+                step.stopLocation.latitude
+              ];
+              coords.push(startCoords);
+              coords.push(stopCoords);
+              if (step.startLocation.name) {
+                routeStations.push({
+                  coords: startCoords,
+                  name: step.startLocation.name
+                });
+              }
+              if (step.stopLocation.name) {
+                routeStations.push({
+                  coords: stopCoords,
+                  name: step.stopLocation.name
+                });
+              }
+            });
+            routeCoords.push({
+              coords: [...coords],
+              travelMode: leg.travelMode
+            });
+          });
+          const convexHull = hull(
+            routeCoords.map(rc => rc.coords.map(c => c)).flat()
+          );
+          const longitudes = convexHull.map(c => c[0]);
+          const latitudes = convexHull.map(c => c[1]);
+
+          //[[westest, northest],[eastest, southest]]
+          const zoomBoundaries = [
+            [Math.min(...longitudes), Math.max(...latitudes)],
+            [Math.max(...longitudes), Math.min(...latitudes)]
+          ];
+          this.setState({
+            route: completePath,
+            routeCoords,
+            fitBounds: zoomBoundaries,
+            routeStations
+          });
+          break;
+        case "end":
+          console.log("No more paths!");
+          this.setState({
+            calculating: false,
+            isLogModalOpen: false,
+            finished: true
+          });
+          this.stopTimer();
+          break;
+        case "error":
+          const { error } = e.data;
+          console.error(error);
+          this.setState({ calculating: false });
+          break;
+        case "query":
+          const { query } = e.data;
+          console.log("Query", query);
+          this.setState({ query });
+          break;
+        case "resourceFetch":
+          const { resource } = e.data;
+          const { url, duration } = resource;
+          console.log(`[GET] ${url} (${duration}ms)`);
+          let { logs, scannedConnections } = this.state;
+          this.setState({
+            logs: [...logs, { url, duration }],
+            scannedConnections: scannedConnections + 1
+          });
+          break;
+        case "pointReached":
+          const { location, distance } = e.data;
+          const { scannedDistance } = this.state;
+          if (distance > scannedDistance) {
+            this.setState({ scannedDistance: distance.toFixed(1) });
+          }
+          this.setState({
+            pointReached: [...this.state.pointReached, location]
+          });
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   componentDidMount() {
@@ -171,115 +271,12 @@ class PlannerMap extends ReactQueryParams {
       this.setState({
         calculating: true
       });
-
       this.worker.postMessage({
         start,
         destination,
         plannerId: planner.id,
         connectionSources: selectedConnectionSources.map(s => s.label),
         stopSources: selectedStopSources.map(s => s.label)
-      });
-      this.worker.addEventListener("message", e => {
-        const { type } = e.data;
-        switch (type) {
-          case "data":
-            const { path, completePath } = e.data;
-            console.log("this is a path");
-            console.log(path);
-            console.log(completePath);
-            let routeCoords = [];
-            let routeStations = [];
-            completePath.legs.forEach(leg => {
-              let coords = [];
-              leg.steps.forEach(step => {
-                const startCoords = [
-                  step.startLocation.longitude,
-                  step.startLocation.latitude
-                ];
-                const stopCoords = [
-                  step.stopLocation.longitude,
-                  step.stopLocation.latitude
-                ];
-                coords.push(startCoords);
-                coords.push(stopCoords);
-                if (step.startLocation.name) {
-                  routeStations.push({
-                    coords: startCoords,
-                    name: step.startLocation.name
-                  });
-                }
-                if (step.stopLocation.name) {
-                  routeStations.push({
-                    coords: stopCoords,
-                    name: step.stopLocation.name
-                  });
-                }
-              });
-              routeCoords.push({
-                coords: [...coords],
-                travelMode: leg.travelMode
-              });
-            });
-            const convexHull = hull(
-              routeCoords.map(rc => rc.coords.map(c => c)).flat()
-            );
-            const longitudes = convexHull.map(c => c[0]);
-            const latitudes = convexHull.map(c => c[1]);
-
-            //[[westest, northest],[eastest, southest]]
-            const zoomBoundaries = [
-              [Math.min(...longitudes), Math.max(...latitudes)],
-              [Math.max(...longitudes), Math.min(...latitudes)]
-            ];
-            this.setState({
-              route: completePath,
-              routeCoords,
-              fitBounds: zoomBoundaries,
-              routeStations
-            });
-            break;
-          case "end":
-            console.log("No more paths!");
-            this.setState({
-              calculating: false,
-              isLogModalOpen: false,
-              finished: true
-            });
-            this.stopTimer();
-            break;
-          case "error":
-            const { error } = e.data;
-            console.error(error);
-            this.setState({ calculating: false });
-            break;
-          case "query":
-            const { query } = e.data;
-            console.log("Query", query);
-            this.setState({ query });
-            break;
-          case "resourceFetch":
-            const { resource } = e.data;
-            const { url, duration } = resource;
-            console.log(`[GET] ${url} (${duration}ms)`);
-            let { logs, scannedConnections } = this.state;
-            this.setState({
-              logs: [...logs, { url, duration }],
-              scannedConnections: scannedConnections + 1
-            });
-            break;
-          case "pointReached":
-            const { location, distance } = e.data;
-            const { scannedDistance } = this.state;
-            if (distance > scannedDistance) {
-              this.setState({ scannedDistance: distance.toFixed(1) });
-            }
-            this.setState({
-              pointReached: [...this.state.pointReached, location]
-            });
-            break;
-          default:
-            break;
-        }
       });
     }
   }
