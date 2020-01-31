@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import Drawer from "react-drag-drawer";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import JSONPretty from "react-json-pretty";
-import monikai from "react-json-pretty/themes/monikai.css";
+import JSONPrettyMon from "react-json-pretty/dist/monikai";
 import styles from "./LogModal.module.css";
 
 class LogModal extends Component {
@@ -29,7 +29,7 @@ class LogModal extends Component {
             </Grid>
             <h1>Execution logs</h1>
             <h5>Executed query :</h5>
-            <JSONPretty json={query} theme={monikai}></JSONPretty>
+            <JSONPretty json={query} theme={JSONPrettyMon}></JSONPretty>
             <br />
             <h5>Data fetched :</h5>
             {logs.map((l, index) => (
@@ -43,7 +43,7 @@ class LogModal extends Component {
             {response ? (
               <React.Fragment>
                 <h5>Response</h5>
-                <JSONPretty json={response} theme={monikai}></JSONPretty>
+                <JSONPretty json={response} theme={JSONPrettyMon}></JSONPretty>
               </React.Fragment>
             ) : null}
           </Box>
