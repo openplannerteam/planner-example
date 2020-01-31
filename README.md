@@ -1,6 +1,6 @@
 # Planner.JS example
 
-This project is part of the documentation of Planner.JS. It shows a set of the framework's functionnalities.
+This project is part of the documentation of Planner.JS. It shows a set of the framework's functionalities.
 
 ## Available Scripts
 
