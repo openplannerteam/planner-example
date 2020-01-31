@@ -4,6 +4,8 @@ import planners from "../data/planners";
 import turfDistance from "@turf/distance";
 import { point as turfPoint } from "@turf/helpers";
 
+let planner = null;
+let startPoint = null;
 function addConnectionSourcesToPlanner(planner, sources) {
   sources.forEach(s => {
     planner.addConnectionSource(s);
@@ -34,17 +36,17 @@ EventBus.on(EventType.InvalidQuery, error => {
     console.warn(e);
   })
   .on(EventType.ReachableID, locationId => {
-    // planner
-    //   .resolveLocation(locationId)
-    //   .then(location => {
-    //     var from = turfPoint([start.lng, start.lat]);
-    //     var to = turfPoint([location.longitude, location.latitude]);
-    //     var distance = turfDistance(from, to);
-    //     self.postMessage({ type: "pointReached", location, distance });
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
+    planner
+      .resolveLocation(locationId)
+      .then(location => {
+        var from = turfPoint([startPoint.lng, startPoint.lat]);
+        var to = turfPoint([location.longitude, location.latitude]);
+        var distance = turfDistance(from, to);
+        self.postMessage({ type: "pointReached", location, distance });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   });
 
 self.addEventListener("message", e => {
@@ -57,7 +59,8 @@ self.addEventListener("message", e => {
     connectionSources
   } = e.data;
   const plannerToUse = planners.filter(p => p.id === plannerId)[0].class;
-  const planner = new plannerToUse();
+  planner = new plannerToUse();
+  startPoint = start;
   addConnectionSourcesToPlanner(planner, connectionSources);
   addStopSourcesToPlanner(planner, stopSources);
   // configureEventBus(planner, start);
