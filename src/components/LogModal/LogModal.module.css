@@ -1,22 +1,24 @@
-.logModal{
+.logModal {
   background-color: rgba(18, 18, 18, 0.7);
-  /* border: black;
-  border-width: 3px;
-  border-style: solid; */
   color: white;
   width: 80%;
   height: 100%;
+  padding-top: 10px;
+}
+
+.logContent {
+  max-height: 94%;
   overflow: scroll;
 }
 
-.logModal a{
+.logModal a {
   color: blanchedalmond;
 }
 
-.yellow{
+.yellow {
   color: yellow;
 }
 
-.green{
+.green {
   color: green;
 }

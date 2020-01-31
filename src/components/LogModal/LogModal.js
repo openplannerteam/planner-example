@@ -15,18 +15,18 @@ class LogModal extends Component {
   }
 
   render() {
-    const { open, onClose, logs, query} = this.props;
+    const { open, onClose, logs, query } = this.props;
     return (
       <Drawer open={open} modalElementClass={styles.logModal}>
-        <Container>
+        <Grid container justify="center">
+          <Grid item>
+            <Fab color="primary" onClick={onClose}>
+              <ExpandMoreIcon />
+            </Fab>
+          </Grid>
+        </Grid>
+        <Container className={styles.logContent}>
           <Box p={1}>
-            <Grid container justify="center">
-              <Grid item>
-                <Fab color="primary" onClick={onClose}>
-                  <ExpandMoreIcon />
-                </Fab>
-              </Grid>
-            </Grid>
             <h1>Execution logs</h1>
             <h5>Executed query :</h5>
             <JSONPretty json={query} theme={JSONPrettyMon}></JSONPretty>
