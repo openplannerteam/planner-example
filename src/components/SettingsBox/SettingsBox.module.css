@@ -3,9 +3,13 @@
   top: 8px;
   left: 16px;
   z-index: 1;
-  width: 28vw;
+  width: 33vw;
 }
 
+.settingsBoxContent{
+  max-height: 30vh;
+  overflow: scroll;
+}
 .selects {
   z-index: 10000;
 }

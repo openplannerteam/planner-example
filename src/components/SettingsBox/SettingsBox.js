@@ -39,7 +39,7 @@ class SettingsBox extends Component {
     } = this.props;
     return (
       <Card className={styles.settingsBox}>
-        <CardContent>
+        <CardContent className={styles.settingsBoxContent}>
           <Typography variant="h6">Settings</Typography>
           <br />
           <FormGroup>

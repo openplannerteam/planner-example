@@ -18,7 +18,7 @@ class LogSummary extends Component {
       <React.Fragment>
         {show ? (
           <div className={styles.logSummary}>
-            <Grid container justify="space-around">
+            <Grid container justify="space-evenly">
               <Grid item>
                 <Grid container>
                   <Grid item>
