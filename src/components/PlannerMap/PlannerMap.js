@@ -348,9 +348,10 @@ class PlannerMap extends ReactQueryParams {
   }
 
   addNewConnectionSource(source) {
+    console.log(this.state);
     const { selectedConnectionSources, newConnectionSourceId } = this.state;
     const newSources = [
-      ...selectedConnectionSources,
+      ...(selectedConnectionSources || []), // default to an empty list
       { value: newConnectionSourceId, label: source }
     ];
     this.setState({
@@ -367,7 +368,7 @@ class PlannerMap extends ReactQueryParams {
   addNewStopSource(source) {
     const { selectedStopSources, newStopSourceId } = this.state;
     const newSources = [
-      ...selectedStopSources,
+      ...(selectedStopSources || []), // default to an empty list
       { value: newStopSourceId, label: source }
     ];
     this.setState({
