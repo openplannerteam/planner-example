@@ -50,7 +50,7 @@ EventBus.on(EventType.InvalidQuery, error => {
   });
 
 self.addEventListener("message", e => {
-  console.log("hi from worker");
+  console.log("Init web worker for Planner.js :)");
   const {
     start,
     destination,
@@ -78,7 +78,7 @@ self.addEventListener("message", e => {
       minimumTransferDuration: Units.fromMinutes(1),
       maximumTransferDuration: Units.fromMinutes(30),
 
-      maximumTravelDuration: Units.fromHours(1.5),
+      maximumTravelDuration: Units.fromHours(3),
 
       maximumTransfers: 4
     })
