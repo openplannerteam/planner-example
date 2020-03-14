@@ -28,8 +28,8 @@ class PlannerMap extends ReactQueryParams {
     super(props);
 
     this.state = {
-      center: [4.5118, 50.6282], //Belgium
-      zoom: [8],
+      center: [24.942481990577306, 60.16747345012442], // Helsinki
+      zoom: [13],
       start: null,
       destination: null,
       routeCoords: [],
@@ -191,7 +191,7 @@ class PlannerMap extends ReactQueryParams {
     let newConnectionSources = [];
     let newStopSources = [];
     if (!planner || isNaN(parseInt(planner))) {
-      this.setQueryParams({ planner: 3 });
+      this.setQueryParams({ planner: 1 });
       planner = this.queryParams.planner;
     }
     if (connectionSources && connectionSources.length > 0) {
@@ -243,8 +243,8 @@ class PlannerMap extends ReactQueryParams {
       this.setState({
         start: null,
         destination: null,
-        center: [4.5118, 50.6282],
-        zoom: [8]
+        center: [24.942481990577306, 60.16747345012442],
+        zoom: [13]
       });
       this.setQueryParams({ start: undefined, destination: undefined });
     }

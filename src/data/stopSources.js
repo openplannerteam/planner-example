@@ -1,4 +1,5 @@
 export default [
+  "http://193.190.127.152/hsl/stops",
   "https://irail.be/stations/NMBS",
   "https://openplanner.ilabt.imec.be/mivb/stops",
   "https://openplanner.ilabt.imec.be/tec/stops",
