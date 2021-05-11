@@ -37,7 +37,7 @@
     "@turf/distance": "^6.0.1",
     "@turf/helpers": "^6.1.4",
     "hull.js": "^1.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mapbox-gl": "^1.7.0",
     "plannerjs": "^0.3.0",
     "react": "^16.12.0",
